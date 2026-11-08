@@ -38,4 +38,4 @@ flowchart LR
 | GL Compatibility renderer | runs on low-end Android TV boxes |
 | Cores downloaded, not bundled | smaller download, and each core keeps its own license |
 
-Full reference: [docs/TECHNICAL.md](https://github.com/ByReoxXx/redox-gaming/blob/main/docs/TECHNICAL.md).
+Full reference: [docs/TECHNICAL.md](https://github.com/ByReDoxXx/redox-gaming/blob/main/docs/TECHNICAL.md).

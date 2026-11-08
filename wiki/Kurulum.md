@@ -4,7 +4,7 @@
 
 ## Windows 10 / 11 (x64)
 
-1. **[Releases](https://github.com/ByReoxXx/redox-gaming/releases)** sayfasından `RedoXGaming-windows-x64.zip` dosyasını indirin.
+1. **[Releases](https://github.com/ByReDoxXx/redox-gaming/releases)** sayfasından `RedoXGaming-windows-x64.zip` dosyasını indirin.
 2. Zip'i istediğiniz yere açın, örneğin `C:\Oyunlar\RedoX Gaming`.
 3. `RedoXGaming.exe`'yi çalıştırın. `redox_core.windows.template_release.x86_64.dll` aynı klasörde kalmalı; emülatör köprüsü odur.
 4. Uygulama kod imzalı olmadığı için Windows SmartScreen "bilinmeyen yayıncı" uyarısı verebilir. **Ek bilgi → Yine de çalıştır**'ı seçin.

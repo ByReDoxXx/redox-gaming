@@ -1,4 +1,4 @@
-![RedoX Gaming](https://raw.githubusercontent.com/ByReoxXx/redox-gaming/main/docs/github_social_1280x640.png)
+![RedoX Gaming](https://raw.githubusercontent.com/ByReDoxXx/redox-gaming/main/docs/github_social_1280x640.png)
 
 **English** · [Türkçe](Ana-Sayfa)
 
@@ -24,7 +24,7 @@ RedoX Gaming is a free, open-source retro game player for **Windows, Linux, Andr
 | 🛠️ [Building from Source](Building-from-Source) | Windows, Linux, Android |
 | 🧩 [Architecture](Architecture) | how the parts fit together |
 | 🤝 [Contributing](Contributing) | bug reports, pull requests, adding a system |
-| 📄 [Technical documentation](https://github.com/ByReoxXx/redox-gaming/blob/main/docs/TECHNICAL.md) | full reference |
-| 🎨 [Design system](https://github.com/ByReoxXx/redox-gaming/blob/main/docs/DESIGN.md) | colours, type, focus rules |
+| 📄 [Technical documentation](https://github.com/ByReDoxXx/redox-gaming/blob/main/docs/TECHNICAL.md) | full reference |
+| 🎨 [Design system](https://github.com/ByReDoxXx/redox-gaming/blob/main/docs/DESIGN.md) | colours, type, focus rules |
 
 > RedoX Gaming does not include or download commercial games. Play free homebrew or game files you own.

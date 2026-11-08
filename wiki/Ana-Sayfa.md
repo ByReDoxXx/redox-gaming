@@ -1,4 +1,4 @@
-![RedoX Gaming](https://raw.githubusercontent.com/ByReoxXx/redox-gaming/main/docs/github_social_1280x640.png)
+![RedoX Gaming](https://raw.githubusercontent.com/ByReDoxXx/redox-gaming/main/docs/github_social_1280x640.png)
 
 [English](Home) · **Türkçe**
 
@@ -24,7 +24,7 @@ RedoX Gaming; **Windows, Linux, Android TV ve Android telefon** için ücretsiz 
 | 🛠️ [Kaynaktan Derleme](Kaynaktan-Derleme) | Windows, Linux, Android |
 | 🧩 [Mimari](Mimari) | parçalar nasıl birleşiyor |
 | 🤝 [Katkı](Katki) | hata bildirme, pull request, sistem ekleme |
-| 📄 [Teknik doküman](https://github.com/ByReoxXx/redox-gaming/blob/main/docs/TEKNIK.md) | tam başvuru kaynağı |
-| 🎨 [Tasarım sistemi](https://github.com/ByReoxXx/redox-gaming/blob/main/docs/DESIGN.md) | renkler, yazı tipleri, odak kuralları |
+| 📄 [Teknik doküman](https://github.com/ByReDoxXx/redox-gaming/blob/main/docs/TEKNIK.md) | tam başvuru kaynağı |
+| 🎨 [Tasarım sistemi](https://github.com/ByReDoxXx/redox-gaming/blob/main/docs/DESIGN.md) | renkler, yazı tipleri, odak kuralları |
 
 > RedoX Gaming ticari oyun içermez ve indirmez. Ücretsiz homebrew oyunları ya da size ait oyun dosyalarını oynayın.

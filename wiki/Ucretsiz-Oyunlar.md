@@ -13,7 +13,7 @@
 
 ## Oyunlar nereden geliyor
 
-Liste, emülatörler için ücretsiz homebrew toplayan **[Retrobrews](https://retrobrews.github.io)** projesinden gelir. Retrobrews her sistem için bir GitHub deposu tutar ve listedeki her oyunun paylaşımına sahibinin izin verdiğini belirtir. RedoX Gaming her oyunda geliştiriciyi ve kaynağı gösterir. Geliştiriciyseniz ve bir oyunun kaldırılmasını istiyorsanız Retrobrews ile iletişime geçin, burada da bir [issue](https://github.com/ByReoxXx/redox-gaming/issues) açın.
+Liste, emülatörler için ücretsiz homebrew toplayan **[Retrobrews](https://retrobrews.github.io)** projesinden gelir. Retrobrews her sistem için bir GitHub deposu tutar ve listedeki her oyunun paylaşımına sahibinin izin verdiğini belirtir. RedoX Gaming her oyunda geliştiriciyi ve kaynağı gösterir. Geliştiriciyseniz ve bir oyunun kaldırılmasını istiyorsanız Retrobrews ile iletişime geçin, burada da bir [issue](https://github.com/ByReDoxXx/redox-gaming/issues) açın.
 
 | Sistem | Oyun sayısı (yazıldığı tarihte) |
 |---|---|

@@ -13,7 +13,7 @@ The **ÜCRETSİZ OYUNLAR** (free games) tab is a small store of **homebrew**: ne
 
 ## Where the games come from
 
-The list comes from **[Retrobrews](https://retrobrews.github.io)**, a project that collects free homebrew for emulators. Retrobrews keeps one GitHub repository per system and states that every listed game was approved for sharing by its owner. RedoX Gaming shows the developer and the source on every game. If you are a developer and want a game removed, please contact Retrobrews and [open an issue](https://github.com/ByReoxXx/redox-gaming/issues) here too.
+The list comes from **[Retrobrews](https://retrobrews.github.io)**, a project that collects free homebrew for emulators. Retrobrews keeps one GitHub repository per system and states that every listed game was approved for sharing by its owner. RedoX Gaming shows the developer and the source on every game. If you are a developer and want a game removed, please contact Retrobrews and [open an issue](https://github.com/ByReDoxXx/redox-gaming/issues) here too.
 
 | System | Games (at the time of writing) |
 |---|---|

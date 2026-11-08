@@ -6,7 +6,7 @@ Thank you for helping! RedoX Gaming is GPLv3; contributions are accepted under t
 
 ## Reporting a bug
 
-Open an [issue](https://github.com/ByReoxXx/redox-gaming/issues) with:
+Open an [issue](https://github.com/ByReDoxXx/redox-gaming/issues) with:
 
 - your OS and the RedoX Gaming version,
 - the system and the game (a homebrew name, never a ROM file or a download link),
@@ -16,7 +16,7 @@ Open an [issue](https://github.com/ByReoxXx/redox-gaming/issues) with:
 ## Pull requests
 
 1. Fork, create a branch, keep changes focused.
-2. Follow the [design system](https://github.com/ByReoxXx/redox-gaming/blob/main/docs/DESIGN.md): colours and sizes come from `app.gd`, every new screen must work with D-pad + A/B.
+2. Follow the [design system](https://github.com/ByReDoxXx/redox-gaming/blob/main/docs/DESIGN.md): colours and sizes come from `app.gd`, every new screen must work with D-pad + A/B.
 3. Run both tests (`smoke_test` and `services_test`); they must print `RESULT: PASS`.
 4. Describe what changed and how you tested it.
 
@@ -28,4 +28,4 @@ Open an [issue](https://github.com/ByReoxXx/redox-gaming/issues) with:
 
 ## Adding a system
 
-See [Technical documentation → Extending](https://github.com/ByReoxXx/redox-gaming/blob/main/docs/TECHNICAL.md#9-extending): one entry in `App.SYSTEMS`, folder hints, box-art folder, an illustration, optional free-game source.
+See [Technical documentation → Extending](https://github.com/ByReDoxXx/redox-gaming/blob/main/docs/TECHNICAL.md#9-extending): one entry in `App.SYSTEMS`, folder hints, box-art folder, an illustration, optional free-game source.

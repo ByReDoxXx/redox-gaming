@@ -98,7 +98,7 @@ The **ÜCRETSİZ OYUNLAR** (free games) tab lists homebrew games from [Retrobrew
 ## Build from source
 
 ```bash
-git clone --recursive https://github.com/ByReoxXx/redox-gaming.git
+git clone --recursive https://github.com/ByReDoxXx/redox-gaming.git
 cd redox-gaming/extension
 scons platform=windows target=template_release     # or: platform=linux
 ```

@@ -234,7 +234,7 @@ Some Retrobrews screenshots are JPEGs with a `.png` name, so `App.load_image_tex
 | C++ compiler | Windows: Visual Studio 2022 Build Tools (MSVC) · Linux: GCC 11+ or Clang · Android: NDK r23+ |
 
 ```bash
-git clone --recursive https://github.com/ByReoxXx/redox-gaming.git
+git clone --recursive https://github.com/ByReDoxXx/redox-gaming.git
 # already cloned without --recursive?
 git submodule update --init
 ```

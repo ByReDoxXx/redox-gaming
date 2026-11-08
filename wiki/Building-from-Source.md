@@ -2,7 +2,7 @@
 
 # Building from Source
 
-Short version below; every detail is in [docs/TECHNICAL.md → Building](https://github.com/ByReoxXx/redox-gaming/blob/main/docs/TECHNICAL.md#building).
+Short version below; every detail is in [docs/TECHNICAL.md → Building](https://github.com/ByReDoxXx/redox-gaming/blob/main/docs/TECHNICAL.md#building).
 
 ## 1. Tools
 
@@ -13,7 +13,7 @@ Short version below; every detail is in [docs/TECHNICAL.md → Building](https:/
 ## 2. Get the code
 
 ```bash
-git clone --recursive https://github.com/ByReoxXx/redox-gaming.git
+git clone --recursive https://github.com/ByReDoxXx/redox-gaming.git
 cd redox-gaming
 ```
 

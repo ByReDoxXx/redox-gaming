@@ -2,7 +2,7 @@
 
 # Kaynaktan Derleme
 
-Aşağıda kısa anlatım var; bütün ayrıntılar [docs/TEKNIK.md → Derleme](https://github.com/ByReoxXx/redox-gaming/blob/main/docs/TEKNIK.md#derleme) bölümünde.
+Aşağıda kısa anlatım var; bütün ayrıntılar [docs/TEKNIK.md → Derleme](https://github.com/ByReDoxXx/redox-gaming/blob/main/docs/TEKNIK.md#derleme) bölümünde.
 
 ## 1. Araçlar
 
@@ -13,7 +13,7 @@ Aşağıda kısa anlatım var; bütün ayrıntılar [docs/TEKNIK.md → Derleme]
 ## 2. Kodu alın
 
 ```bash
-git clone --recursive https://github.com/ByReoxXx/redox-gaming.git
+git clone --recursive https://github.com/ByReDoxXx/redox-gaming.git
 cd redox-gaming
 ```
 

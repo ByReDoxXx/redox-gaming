@@ -98,7 +98,7 @@ Dosyaları uygulamanın ROM klasörüne de kopyalayabilirsiniz: Windows'ta `%APP
 ## Kaynaktan derleme
 
 ```bash
-git clone --recursive https://github.com/ByReoxXx/redox-gaming.git
+git clone --recursive https://github.com/ByReDoxXx/redox-gaming.git
 cd redox-gaming/extension
 scons platform=windows target=template_release     # ya da: platform=linux
 ```

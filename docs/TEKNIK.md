@@ -234,7 +234,7 @@ Bazı Retrobrews ekran görüntüleri `.png` adlı JPEG dosyalarıdır; bu yüzd
 | C++ derleyici | Windows: Visual Studio 2022 Build Tools (MSVC) · Linux: GCC 11+ ya da Clang · Android: NDK r23+ |
 
 ```bash
-git clone --recursive https://github.com/ByReoxXx/redox-gaming.git
+git clone --recursive https://github.com/ByReDoxXx/redox-gaming.git
 # --recursive olmadan klonladıysanız:
 git submodule update --init
 ```

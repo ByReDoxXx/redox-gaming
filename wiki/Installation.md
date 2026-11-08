@@ -4,7 +4,7 @@
 
 ## Windows 10 / 11 (x64)
 
-1. Open **[Releases](https://github.com/ByReoxXx/redox-gaming/releases)** and download `RedoXGaming-windows-x64.zip`.
+1. Open **[Releases](https://github.com/ByReDoxXx/redox-gaming/releases)** and download `RedoXGaming-windows-x64.zip`.
 2. Unzip it anywhere, for example `C:\Games\RedoX Gaming`.
 3. Run `RedoXGaming.exe`. Keep `redox_core.windows.template_release.x86_64.dll` in the same folder; it is the emulator bridge.
 4. Windows SmartScreen may warn about an unknown publisher because the app is not code-signed. Choose **More info → Run anyway**.

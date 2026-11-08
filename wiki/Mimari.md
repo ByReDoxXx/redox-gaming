@@ -38,4 +38,4 @@ flowchart LR
 | GL Compatibility çizicisi | düşük donanımlı Android TV kutularında çalışır |
 | Çekirdekler pakete konmaz, iner | indirme küçük kalır ve her çekirdek kendi lisansını korur |
 
-Tam başvuru: [docs/TEKNIK.md](https://github.com/ByReoxXx/redox-gaming/blob/main/docs/TEKNIK.md).
+Tam başvuru: [docs/TEKNIK.md](https://github.com/ByReDoxXx/redox-gaming/blob/main/docs/TEKNIK.md).
