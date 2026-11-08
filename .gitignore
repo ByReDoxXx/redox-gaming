@@ -1,0 +1,30 @@
+# Local tools (Godot editor binary)
+.tools/
+
+# Godot
+app/.godot/
+app/bin/
+
+# Build output
+*.obj
+*.o
+*.os
+*.lib
+*.exp
+*.pdb
+*.ilk
+.sconsign.dblite
+extension/godot-cpp/bin/
+extension/godot-cpp/gen/
+
+# Prebuilt libretro cores are downloaded, not committed
+app/cores/
+
+# User ROMs (only our own test ROM is kept)
+app/roms/*
+!app/roms/redox_test.nes
+build.log
+
+# Build output and logs
+build/
+*.log

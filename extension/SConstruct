@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+# Builds the RedoX core host (GDExtension) into app/bin/<platform>/.
+#   scons platform=windows target=template_debug
+#   scons platform=linux   target=template_release
+#   scons platform=android arch=arm64 target=template_release
+
+env = SConscript("godot-cpp/SConstruct")
+
+env.Append(CPPPATH=["src/", "include/"])
+if env["platform"] in ("linux", "android"):
+    env.Append(LIBS=["dl"])
+
+sources = Glob("src/*.cpp")
+
+prefix = "" if env["platform"] == "windows" else "lib"
+target = "../app/bin/{}/{}redox_core{}{}".format(env["platform"], prefix, env["suffix"], env["SHLIBSUFFIX"])
+
+library = env.SharedLibrary(target, source=sources)
+Default(library)

@@ -1,0 +1,55 @@
+**English** · [Türkçe](Kaynaktan-Derleme)
+
+# Building from Source
+
+Short version below; every detail is in [docs/TECHNICAL.md → Building](https://github.com/ByReoxXx/redox-gaming/blob/main/docs/TECHNICAL.md#building).
+
+## 1. Tools
+
+- **Godot 4.7.x** (standard edition) and the matching **export templates**
+- **Python 3.8+** and **SCons**: `pip install scons`
+- A C++ compiler: **Visual Studio 2022 Build Tools** (Windows), **GCC/Clang** (Linux), **Android NDK** (Android)
+
+## 2. Get the code
+
+```bash
+git clone --recursive https://github.com/ByReoxXx/redox-gaming.git
+cd redox-gaming
+```
+
+`--recursive` also fetches `extension/godot-cpp` (a submodule). Forgot it? Run `git submodule update --init`.
+
+## 3. Build the emulator bridge (GDExtension)
+
+```bash
+cd extension
+scons platform=windows target=template_debug      # for the editor
+scons platform=windows target=template_release    # for exported builds
+```
+
+Use `platform=linux` on Linux, `platform=android arch=arm64` for Android. On a non-English Windows set `PYTHONUTF8=1` first. The library lands in `app/bin/<platform>/`.
+
+## 4. Run
+
+Open the `app/` folder in Godot and press **F5**. On the first game start the core is downloaded automatically. For development you can also pre-download cores:
+
+```bash
+python tools/fetch_cores.py windows
+```
+
+## 5. Export
+
+```bash
+godot --headless --path app --export-release "Windows Desktop" ../build/windows/RedoXGaming.exe
+```
+
+Ship `RedoXGaming.exe` together with `redox_core.windows.template_release.x86_64.dll`.
+
+## 6. Test
+
+```bash
+godot --headless --path app -s res://tests/smoke_test.gd
+godot --headless --path app res://tests/services_test.tscn
+```
+
+Both print `RESULT: PASS` when everything works. The second one needs internet.

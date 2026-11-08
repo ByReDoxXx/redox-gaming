@@ -1,0 +1,7 @@
+# Godot and the tools expect LF line endings
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+*.ttf binary
+*.nes binary

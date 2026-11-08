@@ -1,0 +1,47 @@
+; Engine configuration file.
+
+config_version=5
+
+[application]
+
+config/name="RedoX Gaming"
+config/description="Retro oyun oynatıcı"
+config/version="0.1.0"
+run/main_scene="res://scenes/home.tscn"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+config/icon="res://assets/svg/app_icon.svg"
+config/windows_native_icon="res://assets/brand/icon.ico"
+boot_splash/bg_color=Color(0.039, 0.055, 0.11, 1)
+boot_splash/image="res://assets/brand/splash.png"
+
+[autoload]
+
+App="*res://scripts/app.gd"
+Net="*res://scripts/services/net.gd"
+Cores="*res://scripts/services/cores.gd"
+Library="*res://scripts/services/library.gd"
+Catalog="*res://scripts/services/catalog.gd"
+Covers="*res://scripts/services/covers.gd"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=4
+
+[gui]
+
+common/snap_controls_to_pixels=true
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+2d/snap/snap_2d_transforms_to_pixel=true
