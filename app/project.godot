@@ -6,7 +6,7 @@ config_version=5
 
 config/name="RedoX Gaming"
 config/description="Retro game player / Retro oyun oynatıcı"
-config/version="0.2.1"
+config/version="0.2.2"
 run/main_scene="res://scenes/home.tscn"
 config/quit_on_go_back=false
 config/features=PackedStringArray("4.7", "GL Compatibility")
