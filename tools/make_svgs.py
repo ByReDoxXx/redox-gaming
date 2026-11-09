@@ -75,7 +75,8 @@ def write_svg(img: Image.Image, dest: Path, size: int) -> int:
 def main():
     for p in sorted((ASSETS / "systems_hd").glob("*.png")):
         folder = "ui" if p.stem in UI_ICONS else "systems"
-        n = write_svg(to_grid(Image.open(p), 96, 48, denoise=True), OUT / folder / f"{p.stem}.svg", 512)
+        colors = 24 if folder == "ui" else 48   # fewer colours: flat faces stay flat on a TV
+        n = write_svg(to_grid(Image.open(p), 96, colors, denoise=True), OUT / folder / f"{p.stem}.svg", 512)
         print(f"{folder}/{p.stem}.svg  {n // 1024} KB")
     for p in sorted((ASSETS / "systems").glob("*.png")):
         n = write_svg(to_grid(Image.open(p), 32, 0), OUT / "pixel" / f"{p.stem}.svg", 256)
