@@ -23,6 +23,7 @@ TV kumandası ve gamepad için tasarlanmış pixel art arayüz; arkasında yıll
 - **Son oynananlar, favoriler, oynama süresi,** arama ve sıralama
 - **Ayarlar:** Türkçe / İngilizce, ses, gamepad ve klavye tuş atama, görüntü boyutu
 - Telefon ve tablet için ekran gamepad'i, menü sesleri, yeni sürüm bildirimi
+- Ana ekranda hareketli uzay arka planı: kayan yıldızlar, yıldız kaymaları; görselleri `app/assets/space/` içindeyse asteroitler, UFO'lar ve uzay gemileri
 - Her şey bir yön tuşu ve iki düğmeyle kullanılabilir
 
 > RedoX Gaming ticari oyun **içermez ve indirmez**. Ücretsiz homebrew oyunları ya da yasal yoldan edindiğiniz kendi oyun dosyalarınızı oynarsınız.

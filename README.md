@@ -23,6 +23,7 @@ Pixel-art interface built for the TV remote and gamepad, powered by the battle-t
 - **Recently played, favourites, play time,** search and sort
 - **Settings:** Turkish / English, volume, controller and keyboard remapping, picture size
 - On-screen gamepad for phones and tablets, menu sounds, new-version notice
+- Animated space background on the home screen: drifting stars, shooting stars, and asteroids, UFOs and ships when their sprites are in `app/assets/space/`
 - Everything works with a D-pad and two buttons
 
 > RedoX Gaming does **not** include or download commercial games. You play free homebrew games or your own legally obtained game files.

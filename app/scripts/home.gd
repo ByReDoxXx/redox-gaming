@@ -43,6 +43,8 @@ func _ready() -> void:
 		_counts[id] = Library.count(id)
 	_index = maxi(0, _ids.find(App.last_system))
 
+	add_child(SpaceBackdrop.new())
+
 	_stage = Control.new()
 	_stage.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -365,19 +367,9 @@ func _draw_arrow(b: Button, dir: int) -> void:
 
 # ------------------------------------------------------------------ stage
 
-## Background: dark navy, faint pixel stars, a stepped glow in the selected
-## platform's colour and a pixel pedestal under it.
+## Over the animated SpaceBackdrop: a stepped glow in the selected platform's
+## colour and a pixel pedestal under it.
 func _draw_stage() -> void:
-	var r := _stage.get_rect()
-	_stage.draw_rect(r, App.C_BG)
-
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 7
-	for i in 90:
-		var p := Vector2(rng.randf() * r.size.x, rng.randf() * r.size.y)
-		var s := 4.0 if rng.randf() > 0.8 else 2.0
-		_stage.draw_rect(Rect2(p.floor(), Vector2(s, s)), Color(App.C_TEXT, 0.12 + rng.randf() * 0.15))
-
 	if _carousel == null or _ids.is_empty():
 		return
 	var accent := App.system_accent(_ids[_index])

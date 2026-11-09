@@ -85,7 +85,7 @@ See [RetroAchievements](RetroAchievements).
 
 | Section | Settings |
 |---|---|
-| General | language (Türkçe / English), volume, menu sounds, fullscreen (PC) |
+| General | language (Türkçe / English), volume, menu sounds, animated background, fullscreen (PC) |
 | Video | picture size, filter |
 | Gameplay | resume where you left off, rewind, fast forward speed, on-screen gamepad (auto / on / off) |
 | Controls | set keyboard keys, set gamepad buttons, reset controls |

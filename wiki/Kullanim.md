@@ -85,7 +85,7 @@ Bkz. [RetroAchievements](RetroAchievements-TR).
 
 | Bölüm | Ayarlar |
 |---|---|
-| Genel | dil (Türkçe / English), ses seviyesi, menü sesleri, tam ekran (PC) |
+| Genel | dil (Türkçe / English), ses seviyesi, menü sesleri, hareketli arka plan, tam ekran (PC) |
 | Görüntü | görüntü boyutu, filtre |
 | Oyun | kaldığın yerden devam, geri sarma, hızlı ileri hızı, ekran gamepad'i (otomatik / açık / kapalı) |
 | Kontroller | klavye tuşlarını ayarla, gamepad tuşlarını ayarla, kontrolleri sıfırla |

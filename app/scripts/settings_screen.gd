@@ -226,6 +226,7 @@ func _page_main() -> Control:
 		vol.append([v, _bar(v)])
 	_choice(App.t("S_VOLUME"), "volume", vol)
 	_toggle(App.t("S_UI_SOUNDS"), "ui_sounds")
+	_toggle(App.t("S_MENU_MOTION"), "menu_motion")
 	if not OS.get_name() in ["Android", "iOS"]:
 		_toggle(App.t("S_FULLSCREEN"), "fullscreen")
 

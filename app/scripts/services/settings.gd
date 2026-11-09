@@ -12,6 +12,7 @@ const DEFAULTS := {
 	"lang": "",                # "" = from the system language on first start
 	"volume": 80,              # 0..100
 	"ui_sounds": true,
+	"menu_motion": true,       # animated space background on the home screen
 	"fullscreen": false,
 	"display": "integer",      # integer | fit | stretch
 	"filter": "none",          # none | crt | lcd | smooth
