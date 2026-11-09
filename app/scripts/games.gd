@@ -14,6 +14,7 @@ var _accent := Color.WHITE
 var _count_label: Label
 var _tab_buttons := {}
 var _add_button: Button
+var _back_button: Button
 var _scroll: ScrollContainer
 var _grid: GridContainer
 var _message: VBoxContainer
@@ -132,8 +133,7 @@ func _build_header() -> Control:
 
 	var back := Button.new()
 	back.text = "<"
-	back.focus_mode = Control.FOCUS_NONE
-	back.set_meta("silent", true)
+	_back_button = back
 	back.custom_minimum_size = Vector2(88, 88)
 	back.pressed.connect(_back)
 	row.add_child(back)
@@ -453,6 +453,13 @@ func _link_focus(focus_grid: bool) -> void:
 				break
 	for b in _tab_buttons.values() + [_add_button]:
 		b.focus_neighbor_bottom = b.get_path_to(first) if first else NodePath()
+	# header back button: above the tab row, and DOWN returns to the open tab
+	for b in _tab_buttons.values() + [_sort_button, _add_button, _search]:
+		b.focus_neighbor_top = b.get_path_to(_back_button)
+	_back_button.focus_neighbor_bottom = _back_button.get_path_to(tab_btn)
+	_back_button.focus_neighbor_right = NodePath(".")
+	_back_button.focus_neighbor_left = NodePath(".")
+	_back_button.focus_neighbor_top = NodePath(".")
 	if focus_grid:
 		var target: Control = first if first else tab_btn
 		if _cards.has(App.selected_game):

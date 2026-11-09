@@ -22,6 +22,7 @@ var _count_label: Label
 var _dots: HBoxContainer
 var _drag := 0.0
 var _update_badge: Button
+var _gear: Button
 var _last_game := {}
 
 
@@ -96,7 +97,7 @@ func _ready() -> void:
 	var hints := [[["<", ">"], App.t("PICK_PLATFORM")], [["A"], App.t("OPEN_GAMES")]]
 	if not _last_game.is_empty():
 		hints.append([["Y"], App.t("CONTINUE") + ": " + _short(String(_last_game.title))])
-	hints.append([["START"], App.t("SETTINGS")])
+	hints.append([["^", "START"], App.t("SETTINGS")])
 	col.add_child(HintBar.build(hints, true))
 
 	_build_corner_buttons()
@@ -214,8 +215,8 @@ func _short(t: String) -> String:
 	return t if t.length() <= 18 else t.substr(0, 17) + "…"
 
 
-## Settings gear (top right) and the new-version badge (top left), for mouse
-## and touch; the pad uses START.
+## Settings gear (top right) and the new-version badge (top left). Mouse and
+## touch click them; a remote reaches them with UP from the carousel.
 func _build_corner_buttons() -> void:
 	var gear := Button.new()
 	var gi := TextureRect.new()
@@ -229,8 +230,8 @@ func _build_corner_buttons() -> void:
 	gi.offset_bottom = -16
 	gi.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	gear.add_child(gi)
-	gear.focus_mode = Control.FOCUS_NONE
-	gear.set_meta("silent", true)
+	gear.focus_mode = Control.FOCUS_ALL
+	_gear = gear
 	gear.custom_minimum_size = Vector2(96, 96)
 	gear.tooltip_text = App.t("SETTINGS")
 	gear.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
@@ -242,8 +243,7 @@ func _build_corner_buttons() -> void:
 	add_child(gear)
 
 	_update_badge = Button.new()
-	_update_badge.focus_mode = Control.FOCUS_NONE
-	_update_badge.set_meta("silent", true)
+	_update_badge.focus_mode = Control.FOCUS_ALL
 	_update_badge.add_theme_font_size_override("font_size", 16)
 	_update_badge.add_theme_stylebox_override("normal", App.box(App.C_GOLD.darkened(0.55), App.C_GOLD))
 	_update_badge.add_theme_color_override("font_color", App.C_GOLD)
@@ -265,7 +265,23 @@ func _show_update(version: String) -> void:
 # ------------------------------------------------------------------ input
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_left", true):
+	# top row (gear, update badge) has focus: A is handled by the button itself
+	var top := get_viewport().gui_get_focus_owner()
+	if top != null and (top == _gear or top == _update_badge):
+		if event.is_action_pressed("ui_down") or event.is_action_pressed("ui_cancel"):
+			top.release_focus()
+			Sfx.play("move")
+		elif event.is_action_pressed("ui_left") and top == _gear and _update_badge.visible:
+			_update_badge.grab_focus()
+		elif event.is_action_pressed("ui_right") and top == _update_badge:
+			_gear.grab_focus()
+		elif not (event.is_action_pressed("ui_up") or event.is_action_pressed("ui_left", true) or event.is_action_pressed("ui_right", true)):
+			return
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_action_pressed("ui_up"):
+		_gear.grab_focus()
+	elif event.is_action_pressed("ui_left", true):
 		_move(-1)
 	elif event.is_action_pressed("ui_right", true):
 		_move(1)

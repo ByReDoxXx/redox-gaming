@@ -7,6 +7,7 @@ const LANG_CHOICES := ["tr", "en"]
 
 var _list: VBoxContainer
 var _scroll: ScrollContainer
+var _back_button: Button
 var _title: Label
 var _page := "main"
 var _rows: Array = []                # main page rows, for refreshing values
@@ -41,8 +42,9 @@ func _ready() -> void:
 	col.add_child(head)
 	var back := Button.new()
 	back.text = "<"
-	back.focus_mode = Control.FOCUS_NONE
-	back.set_meta("silent", true)
+	_back_button = back
+	for side in ["left", "right", "top"]:
+		back.set("focus_neighbor_" + side, NodePath("."))
 	back.custom_minimum_size = Vector2(88, 88)
 	back.pressed.connect(_back)
 	head.add_child(back)
@@ -108,9 +110,31 @@ func _show(page: String) -> void:
 	_title.text = {"main": App.t("SETTINGS"), "keys": App.t("S_REMAP_KEYS"), "pad": App.t("S_REMAP_PAD"),
 		"ra": App.t("S_ACCOUNT")}[page]
 	Sfx.hush()
+	_link_back_button()
 	if first:
 		first.grab_focus.call_deferred()
 	_scroll.scroll_vertical = 0
+
+
+## UP from the top item of the list reaches the header's back button
+## (remotes have no B button); DOWN from it returns to that item.
+func _link_back_button() -> void:
+	var top := _first_focusable(_list)
+	if top == null:
+		return
+	top.focus_neighbor_top = top.get_path_to(_back_button)
+	_back_button.focus_neighbor_bottom = _back_button.get_path_to(top)
+
+
+func _first_focusable(node: Node) -> Control:
+	for c in node.get_children():
+		if c is Control and (c as Control).visible:
+			if (c as Control).focus_mode == Control.FOCUS_ALL:
+				return c
+			var inner := _first_focusable(c)
+			if inner:
+				return inner
+	return null
 
 
 func _section(text: String) -> void:
