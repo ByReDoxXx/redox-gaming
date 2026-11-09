@@ -5,6 +5,7 @@ written as one <path> per colour (horizontal runs merged), with
 shape-rendering="crispEdges" so it stays sharp at any size.
 
   app/assets/systems_hd/*.png  -> app/assets/svg/systems/<id>.svg   (Gemini art)
+      (recent, favorites, settings go to app/assets/svg/ui/<id>.svg)
   app/assets/systems/*.png     -> app/assets/svg/pixel/<id>.svg     (32 px icons, exact)
   app/assets/logo.png          -> app/assets/svg/logo.svg
   app/assets/brand/icon_foreground.png -> app/assets/svg/bull.svg
@@ -23,6 +24,7 @@ from PIL import Image, ImageFilter
 ROOT = Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "app" / "assets"
 OUT = ASSETS / "svg"
+UI_ICONS = {"recent", "favorites", "settings"}   # interface icons, not systems
 
 
 def to_grid(img: Image.Image, grid: int, colors: int, denoise: bool = False) -> Image.Image:
@@ -72,8 +74,9 @@ def write_svg(img: Image.Image, dest: Path, size: int) -> int:
 
 def main():
     for p in sorted((ASSETS / "systems_hd").glob("*.png")):
-        n = write_svg(to_grid(Image.open(p), 96, 48, denoise=True), OUT / "systems" / f"{p.stem}.svg", 512)
-        print(f"systems/{p.stem}.svg  {n // 1024} KB")
+        folder = "ui" if p.stem in UI_ICONS else "systems"
+        n = write_svg(to_grid(Image.open(p), 96, 48, denoise=True), OUT / folder / f"{p.stem}.svg", 512)
+        print(f"{folder}/{p.stem}.svg  {n // 1024} KB")
     for p in sorted((ASSETS / "systems").glob("*.png")):
         n = write_svg(to_grid(Image.open(p), 32, 0), OUT / "pixel" / f"{p.stem}.svg", 256)
         print(f"pixel/{p.stem}.svg  {n // 1024} KB")

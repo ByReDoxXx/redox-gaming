@@ -4,7 +4,9 @@ checkerboard background and glow, and writes app/assets/systems_hd/<id>.png.
 Every icon has a dark navy outline. Everything outside that outline that can
 be reached from the image border without crossing a dark pixel is background.
 
-Usage:  python tools/cutout_icons.py
+Also cuts the interface icons (recent, favorites, settings) the same way.
+
+Usage:  python tools/cutout_icons.py [id ...]   (no ids: every picture)
 """
 
 from collections import deque
@@ -18,7 +20,7 @@ OUT = ROOT / "app" / "assets" / "systems_hd"
 WORK = 1000          # mask is computed at this size
 OUT_SIZE = 512
 DARK = 70            # max(r, g, b) at or below this is "outline" (a wall)
-HOLES = {"ps1": [(0.5, 0.5)]}   # extra see-through areas inside the outline
+HOLES = {"ps1": [(0.5, 0.5)], "settings": [(0.5, 0.5)]}   # extra see-through areas inside the outline
 # icons whose fake checkerboard has black squares: dark pixels that are not blue-tinted are background,
 # the navy outline (blue-tinted) is still a wall
 BLACK_CHECKER = {"arcade"}
@@ -86,9 +88,12 @@ def process(path):
 
 
 def main():
+    import sys
     OUT.mkdir(parents=True, exist_ok=True)
+    ids = set(sys.argv[1:])
     for p in sorted(SRC.glob("*.jpg")):
-        print("cut", process(p))
+        if not ids or p.stem in ids:
+            print("cut", process(p))
 
 
 if __name__ == "__main__":
