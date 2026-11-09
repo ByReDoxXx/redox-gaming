@@ -29,12 +29,18 @@ const SYSTEMS := {
 	"gb": {"name": "GAME BOY", "accent": "84a90f", "core": "gambatte_libretro", "ext": ["gb"]},
 	"gbc": {"name": "GB COLOR", "accent": "14b8a6", "core": "gambatte_libretro", "ext": ["gbc"]},
 	"gba": {"name": "GB ADVANCE", "accent": "6366f1", "core": "mgba_libretro", "ext": ["gba"]},
+	"nds": {"name": "NINTENDO DS", "accent": "38bdf8", "core": "melondsds_libretro", "ext": ["nds"], "touch": true},
+	"vb": {"name": "VIRTUAL BOY", "accent": "dc2626", "core": "mednafen_vb_libretro", "ext": ["vb", "vboy"]},
 	"md": {"name": "MEGA DRIVE", "accent": "2563eb", "core": "genesis_plus_gx_libretro", "ext": ["md", "gen", "smd"]},
+	"32x": {"name": "SEGA 32X", "accent": "eab308", "core": "picodrive_libretro", "ext": ["32x"]},
 	"sms": {"name": "MASTER SYSTEM", "accent": "f97316", "core": "genesis_plus_gx_libretro", "ext": ["sms"]},
 	"gg": {"name": "GAME GEAR", "accent": "0ea5e9", "core": "genesis_plus_gx_libretro", "ext": ["gg"]},
 	"pce": {"name": "PC ENGINE", "accent": "f59e0b", "core": "mednafen_pce_fast_libretro", "ext": ["pce"]},
 	"a26": {"name": "ATARI 2600", "accent": "a16207", "core": "stella_libretro", "ext": ["a26"]},
+	"a78": {"name": "ATARI 7800", "accent": "c2410c", "core": "prosystem_libretro", "ext": ["a78"]},
+	"lynx": {"name": "ATARI LYNX", "accent": "f43f5e", "core": "handy_libretro", "ext": ["lnx"]},
 	"ngp": {"name": "NEO GEO POCKET", "accent": "d946ef", "core": "mednafen_ngp_libretro", "ext": ["ngp", "ngc"]},
+	"ws": {"name": "WONDERSWAN", "accent": "22c55e", "core": "mednafen_wswan_libretro", "ext": ["ws", "wsc"]},
 	"ps1": {"name": "PLAYSTATION", "accent": "94a3b8", "core": "pcsx_rearmed_libretro", "ext": ["cue", "chd", "pbp"]},
 	"arcade": {"name": "ARCADE", "accent": "ec4899", "core": "fbneo_libretro", "ext": ["zip"]},
 }
@@ -153,8 +159,10 @@ func system_icon(id: String) -> Texture2D:
 			_icons[id] = load(hd)
 		elif ResourceLoader.exists(ui):
 			_icons[id] = load(ui)
-		else:
+		elif ResourceLoader.exists("res://assets/svg/pixel/%s.svg" % id):
 			_icons[id] = load("res://assets/svg/pixel/%s.svg" % id)
+		else:
+			_icons[id] = load("res://assets/svg/logo.svg")   # no icon yet
 	return _icons[id]
 
 

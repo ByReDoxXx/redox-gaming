@@ -15,7 +15,7 @@ You can add as many folders as you like. One folder can hold games for every sys
 
 ## Option 2: Copy files into the app
 
-Copy files into `roms/<system>/` inside the [data folder](Installation#where-your-data-is), for example `roms/snes/`. System folder names: `nes snes gb gbc gba md sms gg pce a26 ngp ps1 arcade`.
+Copy files into `roms/<system>/` inside the [data folder](Installation#where-your-data-is), for example `roms/snes/`. System folder names: `nes snes gb gbc gba vb nds md 32x sms gg pce a26 a78 lynx ngp ws ps1 arcade`.
 
 ## How systems are recognised
 

@@ -24,6 +24,12 @@ const THUMB_SYSTEMS := {
 	"ngp": ["SNK - Neo Geo Pocket Color", "SNK - Neo Geo Pocket"],
 	"ps1": ["Sony - PlayStation"],
 	"arcade": ["FBNeo - Arcade Games"],
+	"nds": ["Nintendo - Nintendo DS"],
+	"32x": ["Sega - 32X"],
+	"ws": ["Bandai - WonderSwan Color", "Bandai - WonderSwan"],
+	"a78": ["Atari - 7800"],
+	"lynx": ["Atari - Lynx"],
+	"vb": ["Nintendo - Virtual Boy"],
 }
 ## Preferred regions when several box arts match the same title.
 const REGION_ORDER := ["(USA", "(World", "(Europe", "(Japan"]

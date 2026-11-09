@@ -16,11 +16,13 @@ const FACE := {
 	"snes": [[RetroInput.A, "A"], [RetroInput.B, "B"], [RetroInput.X, "X"], [RetroInput.Y, "Y"]],
 	"gba": [[RetroInput.A, "A"], [RetroInput.B, "B"]],
 	"md": [[RetroInput.A, "C"], [RetroInput.B, "B"], [RetroInput.Y, "A"]],
+	"nds": [[RetroInput.A, "A"], [RetroInput.B, "B"], [RetroInput.X, "X"], [RetroInput.Y, "Y"]],
+	"32x": [[RetroInput.A, "C"], [RetroInput.B, "B"], [RetroInput.Y, "A"]],
 	"ps1": [[RetroInput.A, "O"], [RetroInput.B, "X"], [RetroInput.X, "^"], [RetroInput.Y, "[]"]],
 	"pce": [[RetroInput.A, "I"], [RetroInput.B, "II"]],
 	"arcade": [[RetroInput.A, "2"], [RetroInput.B, "1"], [RetroInput.X, "4"], [RetroInput.Y, "3"]],
 }
-const SHOULDERS := ["snes", "gba", "ps1", "arcade"]
+const SHOULDERS := ["snes", "gba", "ps1", "arcade", "vb", "nds"]
 
 var system := ""
 var _buttons: Array = []     # {rect: Rect2, id: int, label: String, kind: "btn"|"dpad"|"pause"}

@@ -17,6 +17,12 @@
 | Neo Geo Pocket / Color | `.ngp .ngc` | Beetle NeoPop | GPLv2 | — |
 | PlayStation | `.cue .chd .pbp` | PCSX ReARMed | GPLv2 | **gerekli**, örn. `scph5501.bin` |
 | Arcade | Arcade / FBNeo / MAME klasöründe `.zip` | FBNeo | ticari olmayan kullanım | bazı oyunlar |
+| Nintendo DS | `.nds` | melonDS DS | GPLv3 | isteğe bağlı (yerleşik ücretsiz BIOS) |
+| Virtual Boy | `.vb .vboy` | Beetle VB | GPLv2 | — |
+| Sega 32X | `.32x` | PicoDrive | ticari olmayan kullanım | — |
+| Atari 7800 | `.a78` | ProSystem | GPLv2 | — |
+| Atari Lynx | `.lnx` | Handy | zlib | isteğe bağlı: `lynxboot.img` |
+| WonderSwan / Color | `.ws .wsc` | Beetle WonderSwan | GPLv2 | — |
 
 ## Çekirdekler hakkında
 
@@ -28,4 +34,8 @@ BIOS dosyaları kendi konsolunuzdan gelir. Onları [veri klasöründeki](Kurulum
 
 ## (Henüz) desteklenmeyenler
 
-Çekirdekleri donanımsal 3B çizim isteyen sistemler (Nintendo 64, Nintendo DS, PSP, Dreamcast…) libretro host'ta ek çalışma gerektirir ve ilk yol haritasında yer almıyor.
+Çekirdekleri donanımsal 3B çizim isteyen sistemler (Nintendo 64, PSP, Dreamcast…) libretro host'ta ek çalışma gerektirir ve henüz desteklenmiyor.
+
+## Nintendo DS
+
+İki ekran üst üste gösterilir. Alttaki dokunmatik ekrandır: fareyle tıklayın ya da telefon / tablette parmağınızla dokunun. TV kumandası ya da gamepad ile henüz dokunulamıyor; dokunmatik ekran isteyen oyunlar bu şekilde oynanamaz. melonDS DS ücretsiz bir BIOS ile gelir, BIOS dosyası gerekmez; `system/` içinde gerçek DS BIOS / firmware dosyaları varsa onlar kullanılır. DS emülasyonu ağırdır: yavaş Android TV kutularında bazı oyunlar tam hızın altında çalışabilir.

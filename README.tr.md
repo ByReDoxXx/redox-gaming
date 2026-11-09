@@ -71,6 +71,12 @@ Gereksinimler: OpenGL 3.3 destekleyen ekran kartı (son ~12 yılın her kartı).
 | Neo Geo Pocket (Color) | `.ngp .ngc` | Beetle NeoPop | — |
 | PlayStation | `.cue .chd .pbp` (BIOS gerekir) | PCSX ReARMed | — |
 | Arcade | Arcade/FBNeo klasöründe `.zip` | FBNeo | — |
+| Nintendo DS | `.nds` (dokunmatik ekran: fare ya da parmak) | melonDS DS | — |
+| Virtual Boy | `.vb .vboy` | Beetle VB | — |
+| Sega 32X | `.32x` | PicoDrive | — |
+| Atari 7800 | `.a78` | ProSystem | — |
+| Atari Lynx | `.lnx` | Handy | — |
+| WonderSwan / Color | `.ws .wsc` | Beetle WonderSwan | — |
 
 ## Kontroller
 
@@ -138,7 +144,8 @@ Ayrıntılı anlatım, Linux ve Android: **[docs/TEKNIK.md](docs/TEKNIK.md#derle
 - [x] Linux sürümü, Android APK, ekran üstü dokunmatik kontroller, GitHub Actions ile otomatik derleme
 - [ ] Android TV'de daha çok cihazda test, TV başlatıcı afişi
 - [ ] Linux AppImage / Flatpak
-- [ ] Netplay, ses gecikmesi ayarı, donanım çizimli çekirdekler (N64, PSP)
+- [ ] Netplay, ses gecikmesi ayarı, donanım çizimli çekirdekler (N64, PSP, Dreamcast)
+- [ ] Nintendo DS dokunmatik ekranı için TV kumandası / gamepad ile ekran imleci
 
 ## Lisans
 

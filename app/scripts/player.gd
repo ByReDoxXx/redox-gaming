@@ -149,6 +149,31 @@ func _input(event: InputEvent) -> void:
 	# remember quick taps so they reach the game even if released within a frame
 	if host != null and host.is_game_loaded() and not _pause.visible:
 		RetroInput.latch(event)
+		_touch_screen(event)
+
+
+var _pointer_down := false
+
+
+## Systems with a touch screen (Nintendo DS): a mouse click or a finger on the
+## game picture is sent to the core as a libretro pointer. On Android touches
+## arrive here as emulated mouse events.
+func _touch_screen(event: InputEvent) -> void:
+	if not App.SYSTEMS.get(_system, {}).get("touch", false):
+		return
+	var pos: Vector2
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		pos = event.position
+		var inside := Rect2(_screen.global_position, _screen.size).has_point(pos)
+		if event.pressed and not inside:
+			return
+		_pointer_down = event.pressed
+	elif event is InputEventMouseMotion and _pointer_down:
+		pos = event.position
+	else:
+		return
+	var local := (pos - _screen.global_position) / _screen.size
+	host.set_pointer(local.x, local.y, _pointer_down)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -305,6 +330,7 @@ func _toggle_pause() -> void:
 		_touch.visible = not _pause.visible
 	if _pause.visible:
 		host.clear_input()
+		_pointer_down = false
 		Sfx.play("select")
 		_show_page("main")
 

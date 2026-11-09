@@ -71,6 +71,8 @@ public:
 	// Input: libretro joypad ids (RETRO_DEVICE_ID_JOYPAD_*) for ports 0..3
 	void set_button(int p_port, int p_id, bool p_pressed);
 	void clear_input();
+	// Touch / mouse on the game picture, x and y in 0..1 of the frame (Nintendo DS)
+	void set_pointer(double p_x, double p_y, bool p_pressed);
 
 	// Video / audio
 	Ref<ImageTexture> get_texture() const { return texture; }
@@ -177,6 +179,10 @@ private:
 	int last_audio_frames = 0;
 
 	uint16_t input_mask[4] = { 0, 0, 0, 0 };
+	// Touch screen (RETRO_DEVICE_POINTER): -0x7fff..0x7fff over the whole frame
+	int16_t pointer_x = 0;
+	int16_t pointer_y = 0;
+	bool pointer_pressed = false;
 
 	double time_accumulator = 0.0;
 	double speed = 1.0;

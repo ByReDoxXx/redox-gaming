@@ -519,10 +519,34 @@ void RetroHost::clear_input() {
 	for (uint16_t &m : input_mask) {
 		m = 0;
 	}
+	pointer_pressed = false;
+}
+
+void RetroHost::set_pointer(double p_x, double p_y, bool p_pressed) {
+	auto to_retro = [](double v) {
+		const double c = v < 0.0 ? 0.0 : (v > 1.0 ? 1.0 : v);
+		return int16_t(c * 0xFFFE - 0x7FFF);
+	};
+	pointer_x = to_retro(p_x);
+	pointer_y = to_retro(p_y);
+	pointer_pressed = p_pressed;
 }
 
 int16_t RetroHost::on_input_state(unsigned p_port, unsigned p_device, unsigned p_index, unsigned p_id) {
-	if (p_port > 3 || (p_device & RETRO_DEVICE_MASK) != RETRO_DEVICE_JOYPAD) {
+	const unsigned device = p_device & RETRO_DEVICE_MASK;
+	if (device == RETRO_DEVICE_POINTER) {
+		if (p_port != 0 || p_index != 0) {
+			return 0;
+		}
+		switch (p_id) {
+			case RETRO_DEVICE_ID_POINTER_X: return pointer_x;
+			case RETRO_DEVICE_ID_POINTER_Y: return pointer_y;
+			case RETRO_DEVICE_ID_POINTER_PRESSED: return pointer_pressed ? 1 : 0;
+			case RETRO_DEVICE_ID_POINTER_COUNT: return pointer_pressed ? 1 : 0;
+			default: return 0;
+		}
+	}
+	if (p_port > 3 || device != RETRO_DEVICE_JOYPAD) {
 		return 0;
 	}
 	if (p_id == RETRO_DEVICE_ID_JOYPAD_MASK) {
@@ -725,6 +749,11 @@ bool RetroHost::on_environment(unsigned p_cmd, void *p_data) {
 			}
 			return true;
 		}
+		case RETRO_ENVIRONMENT_GET_INPUT_DEVICE_CAPABILITIES: {
+			// joypad, and a touch screen / mouse pointer (Nintendo DS)
+			*static_cast<uint64_t *>(p_data) = (1ull << RETRO_DEVICE_JOYPAD) | (1ull << RETRO_DEVICE_POINTER);
+			return true;
+		}
 		case RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS:
 		case RETRO_ENVIRONMENT_SET_CONTROLLER_INFO:
 		case RETRO_ENVIRONMENT_SET_SUPPORT_ACHIEVEMENTS:
@@ -865,6 +894,7 @@ void RetroHost::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_memory", "id"), &RetroHost::get_memory);
 
 	ClassDB::bind_method(D_METHOD("set_button", "port", "id", "pressed"), &RetroHost::set_button);
+	ClassDB::bind_method(D_METHOD("set_pointer", "x", "y", "pressed"), &RetroHost::set_pointer);
 	ClassDB::bind_method(D_METHOD("clear_input"), &RetroHost::clear_input);
 
 	ClassDB::bind_method(D_METHOD("get_texture"), &RetroHost::get_texture);

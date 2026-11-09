@@ -71,6 +71,12 @@ Requirements: OpenGL 3.3 capable GPU (any GPU from the last ~12 years), internet
 | Neo Geo Pocket (Color) | `.ngp .ngc` | Beetle NeoPop | — |
 | PlayStation | `.cue .chd .pbp` (BIOS required) | PCSX ReARMed | — |
 | Arcade | `.zip` in an Arcade/FBNeo folder | FBNeo | — |
+| Nintendo DS | `.nds` (touch screen: mouse or finger) | melonDS DS | — |
+| Virtual Boy | `.vb .vboy` | Beetle VB | — |
+| Sega 32X | `.32x` | PicoDrive | — |
+| Atari 7800 | `.a78` | ProSystem | — |
+| Atari Lynx | `.lnx` | Handy | — |
+| WonderSwan / Color | `.ws .wsc` | Beetle WonderSwan | — |
 
 ## Controls
 
@@ -138,7 +144,8 @@ Full instructions, Linux and Android: **[docs/TECHNICAL.md](docs/TECHNICAL.md#bu
 - [x] Linux build, Android APK, on-screen touch controls, CI builds on GitHub Actions
 - [ ] Android TV testing on more devices, TV launcher banner
 - [ ] Linux AppImage / Flatpak
-- [ ] Netplay, audio latency setting, hardware-rendered cores (N64, PSP)
+- [ ] Netplay, audio latency setting, hardware-rendered cores (N64, PSP, Dreamcast)
+- [ ] Nintendo DS touch screen with a TV remote or gamepad (on-screen cursor)
 
 ## License
 

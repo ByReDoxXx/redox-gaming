@@ -15,7 +15,7 @@ RedoX Gaming zaten sahip olduğunuz oyun dosyalarını oynatır: kendi kartuş v
 
 ## Yol 2: Dosyaları uygulamaya kopyalama
 
-Dosyaları [veri klasöründeki](Kurulum#verileriniz-nerede) `roms/<sistem>/` içine kopyalayın, örneğin `roms/snes/`. Sistem klasör adları: `nes snes gb gbc gba md sms gg pce a26 ngp ps1 arcade`.
+Dosyaları [veri klasöründeki](Kurulum#verileriniz-nerede) `roms/<sistem>/` içine kopyalayın, örneğin `roms/snes/`. Sistem klasör adları: `nes snes gb gbc gba vb nds md 32x sms gg pce a26 a78 lynx ngp ws ps1 arcade`.
 
 ## Sistemler nasıl tanınır
 

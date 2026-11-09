@@ -12,6 +12,7 @@ signal reset_requested
 const CONSOLES := {
 	"nes": 7, "snes": 3, "gb": 4, "gbc": 6, "gba": 5, "md": 1, "sms": 11, "gg": 15,
 	"pce": 8, "a26": 25, "ngp": 14, "ps1": 12, "arcade": 27,
+	"nds": 18, "32x": 10, "ws": 53, "a78": 51, "lynx": 13, "vb": 28,
 }
 const BADGE_DIR := "user://ra_badges"
 

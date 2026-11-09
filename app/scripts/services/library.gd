@@ -37,6 +37,12 @@ const FOLDER_HINTS := {
 	"ngp": ["ngp", "ngpc", "neogeo pocket", "neo geo pocket"],
 	"ps1": ["ps1", "psx", "playstation"],
 	"arcade": ["arcade", "mame", "fbneo", "fba", "neogeo"],
+	"nds": ["nds", "ds", "nintendo ds", "nintendods"],
+	"32x": ["32x", "sega 32x", "sega32x", "mars"],
+	"ws": ["ws", "wsc", "wonderswan", "wonder swan"],
+	"a78": ["a78", "7800", "atari7800", "atari 7800"],
+	"lynx": ["lynx", "atari lynx", "atarilynx"],
+	"vb": ["vb", "virtualboy", "virtual boy"],
 }
 
 var games: Array[Dictionary] = []

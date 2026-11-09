@@ -199,6 +199,8 @@ All screens are built in code; the `.tscn` files only hold the root node and its
 
 Remapping is stored in Settings (`keys`, `pad`) and applied by `RetroInput.load_bindings()` over the defaults. Rewind is held on keyboard `R` or the left trigger, fast forward on `Space` or the right trigger; on PlayStation the triggers stay game buttons. `TouchPad` (`ui/touch_pad.gd`) is a multi-touch overlay whose D-pad reads 8 directions from the finger's angle; it writes `RetroInput.touch_mask`, which is OR-ed into port 0.
 
+Systems marked `"touch": true` in `App.SYSTEMS` (Nintendo DS) also get a touch screen: `player.gd` turns a left click or a finger (Android emulates the mouse from touches) on the game picture into `RetroHost.set_pointer(x, y, pressed)` with x, y in 0..1 of the frame. The host answers `RETRO_DEVICE_POINTER` (X, Y, PRESSED, COUNT) on port 0 and reports joypad + pointer for `GET_INPUT_DEVICE_CAPABILITIES`. `tests/touch_test.tscn` taps a point of the picture and saves screenshots before and after.
+
 ### 4.3 Systems table
 
 `App.SYSTEMS` is the single source of truth: id, display name, accent colour, core file name and extensions. Screens, the library scanner, the core downloader and the box-art lookup all read it.

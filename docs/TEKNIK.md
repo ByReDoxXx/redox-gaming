@@ -199,6 +199,8 @@ Bütün ekranlar kodla kurulur; `.tscn` dosyaları yalnızca kök düğümü ve 
 
 Tuş atamaları Settings'te (`keys`, `pad`) saklanır ve `RetroInput.load_bindings()` ile varsayılanların üstüne uygulanır. Geri sarma klavyede `R` veya sol tetikle, hızlı ileri `Boşluk` veya sağ tetikle basılı tutulur; PlayStation'da tetikler oyun düğmesi olarak kalır. `TouchPad` (`ui/touch_pad.gd`) çoklu dokunmalı bir katmandır; D-pad'i parmağın açısından 8 yön okur ve 0. porta OR'lanan `RetroInput.touch_mask`'a yazar.
 
+`App.SYSTEMS` içinde `"touch": true` olan sistemlerde (Nintendo DS) dokunmatik ekran da vardır: `player.gd`, oyun görüntüsü üzerindeki sol tıklamayı ya da parmağı (Android dokunuşları fareye çevirir) karenin 0..1 aralığındaki x, y değerleriyle `RetroHost.set_pointer(x, y, pressed)`'e gönderir. Host, 0. portta `RETRO_DEVICE_POINTER` (X, Y, PRESSED, COUNT) sorularına yanıt verir ve `GET_INPUT_DEVICE_CAPABILITIES` için joypad + pointer bildirir. `tests/touch_test.tscn` görüntünün bir noktasına dokunup öncesi ve sonrası ekran görüntüsü kaydeder.
+
 ### 4.3 Sistem tablosu
 
 `App.SYSTEMS` tek doğruluk kaynağıdır: id, görünen ad, vurgu rengi, çekirdek dosya adı ve uzantılar. Ekranlar, kütüphane tarayıcısı, çekirdek indirici ve kapak araması hep bunu okur.

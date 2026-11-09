@@ -17,6 +17,12 @@
 | Neo Geo Pocket / Color | `.ngp .ngc` | Beetle NeoPop | GPLv2 | — |
 | PlayStation | `.cue .chd .pbp` | PCSX ReARMed | GPLv2 | **required**, e.g. `scph5501.bin` |
 | Arcade | `.zip` in an Arcade / FBNeo / MAME folder | FBNeo | non-commercial | some games |
+| Nintendo DS | `.nds` | melonDS DS | GPLv3 | optional (built-in free BIOS) |
+| Virtual Boy | `.vb .vboy` | Beetle VB | GPLv2 | — |
+| Sega 32X | `.32x` | PicoDrive | non-commercial | — |
+| Atari 7800 | `.a78` | ProSystem | GPLv2 | — |
+| Atari Lynx | `.lnx` | Handy | zlib | optional: `lynxboot.img` |
+| WonderSwan / Color | `.ws .wsc` | Beetle WonderSwan | GPLv2 | — |
 
 ## About cores
 
@@ -28,4 +34,8 @@ BIOS files come from your own console. Put them in `system/` inside the [data fo
 
 ## Not supported (yet)
 
-Systems whose cores need hardware 3D rendering (Nintendo 64, Nintendo DS, PSP, Dreamcast…) need extra work in the libretro host and are not on the first roadmap.
+Systems whose cores need hardware 3D rendering (Nintendo 64, PSP, Dreamcast…) need extra work in the libretro host and are not supported yet.
+
+## Nintendo DS
+
+Both screens are shown one above the other. The lower one is the touch screen: click it with the mouse, or touch it on a phone or tablet. With a TV remote or a gamepad there is no way to touch it yet, so games that need the touch screen cannot be played that way. melonDS DS brings a free BIOS, so no BIOS files are needed; real DS BIOS / firmware files in `system/` are used when present. DS emulation is heavy: on slow Android TV boxes some games may run below full speed.
