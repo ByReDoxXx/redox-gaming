@@ -1,9 +1,10 @@
 extends Control
-## One platform (App.last_system):
-##   OYUNLARIM        the player's games (+ box art fetched automatically)
-##   ÜCRETSİZ OYUNLAR free homebrew from Retrobrews: pick → download → play
-##   + KLASÖR EKLE    scan a folder / USB stick for games
-## B / Esc / Android back closes a dialog, then returns to the carousel.
+## One platform (App.last_system), or a cross-platform list ("recent", "favorites"):
+##   MY GAMES      the player's games (+ box art fetched automatically)
+##   FREE GAMES    free homebrew from Retrobrews: pick → download → play
+##   + ADD FOLDER  scan a folder / USB stick for games
+## X favourite · Y search · SELECT sort · LB/RB tab.
+## B / Esc / Android back closes a dialog or the search, then returns to the carousel.
 
 const COLUMNS := 5
 
@@ -28,6 +29,10 @@ var _bar: Control
 var _working := false
 var _toast: Label
 var _file_dialog: FileDialog
+var _search: LineEdit
+var _sort_button: Button
+var _query := ""
+var _sort := "name"           # name | recent | time
 
 
 func _ready() -> void:
@@ -42,6 +47,9 @@ func _ready() -> void:
 		_tab = dev_tab
 	if not Catalog.has_store(_id):
 		_tab = "mine"
+	_sort = App.get_meta("games_sort", "name")
+	if _id == "recent":
+		_sort = "recent"
 
 	var bg := ColorRect.new()
 	bg.color = App.C_BG
@@ -96,13 +104,19 @@ func _ready() -> void:
 	_message.add_theme_constant_override("separation", 24)
 	center.add_child(_message)
 
-	col.add_child(HintBar.build([[["A"], "SEÇ"], [["B"], "GERİ"], [["LB", "RB"], "SEKME"]]))
+	var hints := [[["A"], App.t("SELECT")], [["B"], App.t("BACK")], [["X"], App.t("FAVORITE")], [["Y"], App.t("SEARCH")]]
+	if _id != "recent":
+		hints.append([["SELECT"], App.t("SORT")])
+	if Catalog.has_store(_id):
+		hints.append([["LB", "RB"], App.t("TAB")])
+	col.add_child(HintBar.build(hints))
 
 	_build_dialog()
 	_build_toast()
 
 	Covers.image_ready.connect(_on_cover_ready)
 	Library.changed.connect(_on_library_changed)
+	Sfx.hush(400)
 	_show_tab(_tab, true)
 
 
@@ -119,6 +133,7 @@ func _build_header() -> Control:
 	var back := Button.new()
 	back.text = "<"
 	back.focus_mode = Control.FOCUS_NONE
+	back.set_meta("silent", true)
 	back.custom_minimum_size = Vector2(88, 88)
 	back.pressed.connect(_back)
 	row.add_child(back)
@@ -156,9 +171,9 @@ func _build_header() -> Control:
 func _build_tabs() -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
-	var tabs := [["mine", "OYUNLARIM"]]
+	var tabs := [["mine", App.t("MY_GAMES") if not App.is_virtual(_id) else App.system_name(_id)]]
 	if Catalog.has_store(_id):
-		tabs.append(["store", "ÜCRETSİZ OYUNLAR"])
+		tabs.append(["store", App.t("FREE_GAMES")])
 	for t in tabs:
 		var b := Button.new()
 		b.text = t[1]
@@ -169,12 +184,99 @@ func _build_tabs() -> Control:
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(spacer)
+
+	_search = LineEdit.new()
+	_search.placeholder_text = App.t("SEARCH_HINT")
+	_search.custom_minimum_size = Vector2(420, 0)
+	_search.add_theme_font_size_override("font_size", 16)
+	_search.clear_button_enabled = true
+	_search.visible = false
+	_search.text_changed.connect(_on_search_changed)
+	_search.text_submitted.connect(func(_t): _focus_first_card())
+	row.add_child(_search)
+
+	_sort_button = Button.new()
+	_sort_button.add_theme_font_size_override("font_size", 16)
+	_sort_button.pressed.connect(_cycle_sort)
+	_sort_button.visible = _id != "recent"
+	row.add_child(_sort_button)
+	_update_sort_label()
+
 	_add_button = Button.new()
-	_add_button.text = "+ KLASÖR EKLE"
+	_add_button.text = App.t("ADD_FOLDER")
 	_add_button.add_theme_font_size_override("font_size", 16)
 	_add_button.pressed.connect(_add_folder)
+	_add_button.visible = not App.is_virtual(_id)
 	row.add_child(_add_button)
 	return row
+
+
+# ------------------------------------------------------- search and sort
+
+func _toggle_search() -> void:
+	if _search.visible and _search.has_focus():
+		_close_search()
+		return
+	_search.visible = true
+	_search.grab_focus()
+
+
+func _close_search() -> void:
+	_search.visible = false
+	if not _query.is_empty():
+		_search.text = ""
+		_on_search_changed("")
+	_focus_first_card()
+
+
+func _on_search_changed(text: String) -> void:
+	_query = text.strip_edges().to_upper()
+	if _tab == "store":
+		_filter_cards()
+	else:
+		_fill_mine(false)
+
+
+## Store tab: hide the cards that do not match instead of reloading the list.
+func _filter_cards() -> void:
+	for key in _cards:
+		var card: GameCard = _cards[key]
+		card.visible = _query.is_empty() or String(card.data.get("title", "")).contains(_query)
+
+
+func _cycle_sort() -> void:
+	var order := ["name", "recent", "time"]
+	_sort = order[(order.find(_sort) + 1) % order.size()]
+	App.set_meta("games_sort", _sort)
+	_update_sort_label()
+	if _tab == "mine":
+		_fill_mine(true)
+
+
+func _update_sort_label() -> void:
+	_sort_button.text = App.t({"name": "SORT_NAME", "recent": "SORT_RECENT", "time": "SORT_TIME"}[_sort])
+	_sort_button.disabled = _tab == "store"
+
+
+func _focus_first_card() -> void:
+	for c in _grid.get_children():
+		if c.visible:
+			(c as Control).grab_focus()
+			return
+
+
+func _toggle_favorite() -> void:
+	var focused := get_viewport().gui_get_focus_owner()
+	if not focused is GameCard or _tab != "mine":
+		return
+	var card := focused as GameCard
+	var key := _key_of(card)
+	var fav := Stats.toggle_favorite(key, card.data.get("system", _id))
+	card.set_favorite(fav)
+	Sfx.play("toggle")
+	_show_toast(App.t("ADDED_FAV") if fav else App.t("REMOVED_FAV"))
+	if _id == "favorites" and not fav:
+		_fill_mine(true)
 
 
 func _style_tabs() -> void:
@@ -189,9 +291,12 @@ func _style_tabs() -> void:
 
 func _show_tab(tab: String, focus_grid: bool) -> void:
 	_tab = tab
-	App.selected_system = _id
+	if not App.is_virtual(_id):
+		App.selected_system = _id
 	App.set_meta("games_tab", tab)
 	_style_tabs()
+	if _sort_button:
+		_update_sort_label()
 	if tab == "store":
 		_fill_store(focus_grid)
 	else:
@@ -217,25 +322,50 @@ func _clear() -> void:
 
 func _fill_mine(focus_grid: bool) -> void:
 	_clear()
-	var games := Library.games_for(_id)
-	_count_label.text = "%d OYUN" % games.size()
+	var games: Array[Dictionary]
+	match _id:
+		"recent": games = Stats.recent()
+		"favorites": games = Stats.favorites()
+		_: games = Library.games_for(_id)
+	var total := games.size()
+	if not _query.is_empty():
+		games.assign(games.filter(func(g): return String(g.title).contains(_query)))
+	match _sort:
+		"recent": games.sort_custom(func(a, b): return Stats.last_played(a.path) > Stats.last_played(b.path))
+		"time": games.sort_custom(func(a, b): return Stats.seconds(a.path) > Stats.seconds(b.path))
+		_: if _id != "recent": games.sort_custom(func(a, b): return a.title < b.title)
+	_count_label.text = App.t("ONE_GAME") if total == 1 else App.t("N_GAMES", [total])
 	if games.is_empty():
-		_say("HENÜZ OYUN YOK", "Bilgisayarınızdaki veya USB bellekteki oyunlar için KLASÖR EKLE'yi seçin." +
-			("\nYa da ÜCRETSİZ OYUNLAR sekmesinden yasal homebrew oyunları indirin." if Catalog.has_store(_id) else ""))
-		if Catalog.has_store(_id):
-			_message_button("ÜCRETSİZ OYUNLARA GÖZ AT", _show_tab.bind("store", true))
-		_message_button("+ KLASÖR EKLE", _add_folder)
-		_link_focus(focus_grid)
+		if not _query.is_empty():
+			_say(App.t("NO_MATCH"), "")
+		elif _id == "recent":
+			_say(App.t("NO_GAMES_YET"), App.t("EMPTY_RECENT"))
+		elif _id == "favorites":
+			_say(App.t("NO_GAMES_YET"), App.t("EMPTY_FAVORITES"))
+		else:
+			_say(App.t("NO_GAMES_YET"), App.t("EMPTY_HELP") +
+				("\n" + App.t("EMPTY_HELP_STORE") if Catalog.has_store(_id) else ""))
+			if Catalog.has_store(_id):
+				_message_button(App.t("BROWSE_FREE"), _show_tab.bind("store", true))
+			_message_button(App.t("ADD_FOLDER"), _add_folder)
+		_link_focus(focus_grid and _query.is_empty())
 		return
 	for g in games:
 		var meta: Dictionary = g.meta
-		var sub := String(meta.get("developer", "")).to_upper()
+		var sub := Stats.summary(g.path)
+		if App.is_virtual(_id) and sub.is_empty():
+			sub = App.system_name(g.system)
+		elif App.is_virtual(_id):
+			sub = App.system_name(g.system) + " · " + Stats.format_when(Stats.last_played(g.path))
+		if sub.is_empty():
+			sub = String(meta.get("developer", "")).to_upper()
 		if sub.is_empty():
 			sub = App.system_name(g.system)
 		var card := _add_card(g.path, {
 			"title": g.title, "subtitle": sub, "system": g.system,
 			"cover": g.cover, "cover_target": Library.cover_path(g.system, g.path),
 		})
+		card.set_favorite(Stats.is_favorite(g.path))
 		card.pressed.connect(_play.bind(g.path, g.system))
 		Covers.request_boxart(g)
 	_link_focus(focus_grid)
@@ -244,18 +374,18 @@ func _fill_mine(focus_grid: bool) -> void:
 func _fill_store(focus_grid: bool) -> void:
 	_clear()
 	var token := _fill_token
-	_count_label.text = "ÜCRETSİZ OYUNLAR"
-	_say("LİSTE YÜKLENİYOR...", "")
+	_count_label.text = App.t("FREE_GAMES")
+	_say(App.t("LIST_LOADING"), "")
 	var items: Array = await Catalog.list(_id)
 	if token != _fill_token:
 		return
 	_clear()
 	if items.is_empty():
-		_say("LİSTE ALINAMADI", "İnternet bağlantısını kontrol edip tekrar deneyin.")
-		_message_button("TEKRAR DENE", _show_tab.bind("store", true))
+		_say(App.t("LIST_FAILED"), App.t("CHECK_INTERNET"))
+		_message_button(App.t("RETRY"), _show_tab.bind("store", true))
 		_link_focus(focus_grid)
 		return
-	_count_label.text = "%d ÜCRETSİZ OYUN" % items.size()
+	_count_label.text = App.t("N_FREE_GAMES", [items.size()])
 	for e in items:
 		var cache := Catalog.image_cache_path(e)
 		var sub: String = e.developer.to_upper()
@@ -264,11 +394,13 @@ func _fill_store(focus_grid: bool) -> void:
 		var card := _add_card(e.file, {
 			"title": e.name.to_upper(), "subtitle": sub, "system": e.system,
 			"cover": cache if FileAccess.file_exists(cache) else "", "cover_target": cache,
-			"badge": "YÜKLÜ" if Catalog.is_installed(e) else "ÜCRETSİZ",
+			"badge": App.t("INSTALLED") if Catalog.is_installed(e) else App.t("FREE"),
+			"badge_ok": Catalog.is_installed(e),
 		})
 		card.pressed.connect(_open_detail.bind(e, card))
 		if not e.image.is_empty():
 			Covers.request_image(Catalog.RAW % [e.repo, e.image.uri_encode()], cache)
+	_filter_cards()
 	_link_focus(focus_grid)
 	var dev_detail := App.dev_arg("--detail")
 	if not dev_detail.is_empty():
@@ -414,15 +546,15 @@ func _open_detail(e: Dictionary, card: GameCard) -> void:
 		var facts := PackedStringArray()
 		if not e.developer.is_empty(): facts.append(e.developer)
 		if not e.year.is_empty(): facts.append(e.year)
-		if not e.players.is_empty(): facts.append("%s OYUNCU" % e.players)
+		if not e.players.is_empty(): facts.append(App.t("N_PLAYERS", [e.players]))
 		info.add_child(App.body_label(" · ".join(facts), 36, App.C_TEXT))
-		var desc := App.body_label(e.desc if not e.desc.is_empty() else "Açıklama yok.", 32, App.C_MUTED)
+		var desc := App.body_label(e.desc if not e.desc.is_empty() else App.t("NO_DESC"), 32, App.C_MUTED)
 		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		desc.max_lines_visible = 8
 		desc.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		desc.custom_minimum_size = Vector2(720, 240)
 		info.add_child(desc)
-		var src := App.body_label("Ücretsiz homebrew · Kaynak: %s (geliştirici paylaşım izni verdi)" % Catalog.SOURCE_NAME, 28, App.C_MUTED)
+		var src := App.body_label(App.t("SOURCE_NOTE", [Catalog.SOURCE_NAME]), 28, App.C_MUTED)
 		src.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		src.custom_minimum_size.x = 720
 		info.add_child(src)
@@ -446,11 +578,11 @@ func _open_detail(e: Dictionary, card: GameCard) -> void:
 		buttons.add_theme_constant_override("separation", 20)
 		info.add_child(buttons)
 		var play := Button.new()
-		play.text = "OYNA" if Catalog.is_installed(e) else "İNDİR VE OYNA"
+		play.text = App.t("PLAY") if Catalog.is_installed(e) else App.t("DOWNLOAD_PLAY")
 		play.pressed.connect(_install_and_play.bind(e, card))
 		buttons.add_child(play)
 		var close := Button.new()
-		close.text = "GERİ"
+		close.text = App.t("BACK")
 		close.pressed.connect(_close_dialog)
 		buttons.add_child(close)
 		_dialog_primary = play
@@ -470,14 +602,15 @@ func _install_and_play(e: Dictionary, card: GameCard) -> void:
 	_working = true
 	if not Catalog.is_installed(e):
 		var ok: bool = await Catalog.install(e, func(d, t):
-			_set_progress(d, t, "OYUN İNDİRİLİYOR")
+			_set_progress(d, t, App.t("DOWNLOADING_GAME"))
 			card.set_progress(float(d) / t if t > 0 else 0.0))
 		card.set_progress(-1)
 		if not ok:
 			_working = false
-			_status.text = "İNDİRİLEMEDİ. İnternet bağlantısını kontrol edin."
+			_status.text = App.t("DOWNLOAD_FAILED")
+			Sfx.play("error")
 			return
-		card.set_badge("YÜKLÜ")
+		card.set_badge(App.t("INSTALLED"), true)
 	_working = false
 	_play(Catalog.installed_path(e), e.system)
 
@@ -497,8 +630,8 @@ func _play(path: String, system_id: String) -> void:
 				box.custom_minimum_size.x = 900
 				box.add_theme_constant_override("separation", 20)
 				_dialog.add_child(box)
-				box.add_child(App.pixel_label("%s EMÜLATÖRÜ" % App.system_name(system_id), 32, App.C_GOLD))
-				var why := App.body_label("Bu platformu ilk kez açıyorsunuz. Emülatör çekirdeği libretro sunucusundan bir kez indirilecek.", 32)
+				box.add_child(App.pixel_label(App.t("EMULATOR_OF", [App.system_name(system_id)]), 32, App.C_GOLD))
+				var why := App.body_label(App.t("CORE_WHY"), 32)
 				why.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 				why.custom_minimum_size.x = 900
 				box.add_child(why)
@@ -515,16 +648,17 @@ func _play(path: String, system_id: String) -> void:
 				_status = App.body_label("", 32, App.C_TEXT)
 				box.add_child(_status)
 				var close := Button.new()
-				close.text = "GERİ"
+				close.text = App.t("BACK")
 				close.pressed.connect(_close_dialog)
 				box.add_child(close)
 				_dialog_primary = close
 			)
 		_working = true
-		var core: String = await Cores.ensure(system_id, func(d, t): _set_progress(d, t, "ÇEKİRDEK İNDİRİLİYOR"))
+		var core: String = await Cores.ensure(system_id, func(d, t): _set_progress(d, t, App.t("DOWNLOADING_CORE")))
 		_working = false
 		if core.is_empty():
-			_status.text = "Çekirdek indirilemedi. İnternet bağlantısını kontrol edin."
+			_status.text = App.t("CORE_FAILED")
+			Sfx.play("error")
 			return
 	App.go("player")
 
@@ -535,16 +669,23 @@ func _add_folder() -> void:
 	if OS.get_name() == "Android":
 		OS.request_permissions()
 	var start := OS.get_system_dir(OS.SYSTEM_DIR_DOWNLOADS)
-	if DisplayServer.has_feature(DisplayServer.FEATURE_NATIVE_DIALOG_FILE):
-		DisplayServer.file_dialog_show("Oyun klasörünü seçin", start, "", false,
+	if OS.get_name() == "Android":
+		# Android's own picker returns content:// links that cores cannot open;
+		# with the storage permission Godot's dialog sees real paths (and USB
+		# sticks under /storage).
+		start = "/storage/emulated/0"
+	elif DisplayServer.has_feature(DisplayServer.FEATURE_NATIVE_DIALOG_FILE):
+		DisplayServer.file_dialog_show(App.t("PICK_FOLDER"), start, "", false,
 			DisplayServer.FILE_DIALOG_MODE_OPEN_DIR, PackedStringArray(), _on_native_dialog)
 		return
 	if _file_dialog == null:
 		_file_dialog = FileDialog.new()
 		_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_DIR
 		_file_dialog.access = FileDialog.ACCESS_FILESYSTEM
-		_file_dialog.title = "Oyun klasörünü seçin"
+		_file_dialog.title = App.t("PICK_FOLDER")
 		_file_dialog.dir_selected.connect(_on_folder_chosen)
+		_file_dialog.show_hidden_files = false
+		_file_dialog.add_theme_font_size_override("font_size", 24)
 		add_child(_file_dialog)
 	_file_dialog.current_dir = start
 	_file_dialog.popup_centered_ratio(0.8)
@@ -559,7 +700,7 @@ func _on_folder_chosen(dir: String) -> void:
 	var before := Library.count(_id)
 	var added := Library.add_source(dir)
 	var here := Library.count(_id) - before
-	_show_toast("%d OYUN BULUNDU" % added + (" (%d TANESİ BU PLATFORMDA)" % here if added != here else ""))
+	_show_toast(App.t("FOUND_N", [added]) + (App.t("FOUND_HERE", [here]) if added != here else ""))
 	_show_tab("mine", true)
 
 
@@ -589,17 +730,41 @@ func _show_toast(text: String) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	var back := event.is_action_pressed("ui_cancel")
 	if event is InputEventKey and event.pressed and event.keycode == KEY_BACK:
-		back = true
+		back = App.take_back()
+		if not back:
+			get_viewport().set_input_as_handled()
+			return
 	if event is InputEventJoypadButton and event.pressed and event.button_index == JOY_BUTTON_B:
 		back = true
 	if back:
 		get_viewport().set_input_as_handled()
+		Sfx.play("back")
 		if _dialog.visible:
 			_close_dialog()
+		elif _search.visible:
+			_close_search()
 		else:
 			_back()
 		return
 	if _dialog.visible:
+		return
+	if _search.has_focus():
+		# typing: only the pad's Y closes the search box
+		if event is InputEventJoypadButton and event.pressed and event.button_index == JOY_BUTTON_Y:
+			get_viewport().set_input_as_handled()
+			_close_search()
+		return
+	if event.is_action_pressed("rx_search"):
+		get_viewport().set_input_as_handled()
+		_toggle_search()
+		return
+	if event.is_action_pressed("rx_fav"):
+		get_viewport().set_input_as_handled()
+		_toggle_favorite()
+		return
+	if event.is_action_pressed("rx_sort") and _id != "recent" and _tab == "mine":
+		get_viewport().set_input_as_handled()
+		_cycle_sort()
 		return
 	var tab_switch := false
 	if event is InputEventJoypadButton and event.pressed:
@@ -612,9 +777,12 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST and App.take_back():
+		Sfx.play("back")
 		if _dialog.visible:
 			_close_dialog()
+		elif _search.visible:
+			_close_search()
 		else:
 			_back()
 

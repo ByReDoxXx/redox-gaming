@@ -16,7 +16,13 @@ TV kumandası ve gamepad için tasarlanmış pixel art arayüz; arkasında yıll
 - **Ücretsiz oyun mağazası:** yasal bir homebrew oyun seçin, kendiliğinden iner ve başlar
 - **Kendi oyunlarınız:** bir klasör ya da USB bellek ekleyin, kapak resimleri otomatik bulunur
 - **İhtiyaç anında çekirdek:** bir sistemi ilk açtığınızda doğru emülatör çekirdeği bir kez indirilir
-- Durum kaydetme, pil kayıtları, duraklatma menüsü, tam sayı ölçekli keskin görüntü
+- **Kaldığın yerden devam**, resimli 4 kayıt slotu, pil kayıtları
+- **Geri sarma** ve **hızlı ileri**, CRT / LCD / yumuşak görüntü filtreleri
+- **Hileler:** kendi kodlarınız ya da libretro hile veritabanından tek tıkla
+- **RetroAchievements:** eski oyunlarda başarım kazanın (normal ve zor mod)
+- **Son oynananlar, favoriler, oynama süresi,** arama ve sıralama
+- **Ayarlar:** Türkçe / İngilizce, ses, gamepad ve klavye tuş atama, görüntü boyutu
+- Telefon ve tablet için ekran gamepad'i, menü sesleri, yeni sürüm bildirimi
 - Her şey bir yön tuşu ve iki düğmeyle kullanılabilir
 
 > RedoX Gaming ticari oyun **içermez ve indirmez**. Ücretsiz homebrew oyunları ya da yasal yoldan edindiğiniz kendi oyun dosyalarınızı oynarsınız.
@@ -41,9 +47,9 @@ En son sürüm **[Releases](../../releases)** sayfasında.
 
 | Platform | Durum |
 |---|---|
-| Windows 10/11 (x64) | ✅ `RedoXGaming-windows-x64.zip`: zip'i açın, `RedoXGaming.exe`'yi çalıştırın |
-| Linux (x64) | 🛠️ kaynaktan derlenebilir, paketli sürüm yolda |
-| Android TV / Android telefon (arm64) | 🛠️ bir sonraki sürümde |
+| Windows 10/11 (x64) | ✅ `RedoXGaming-<sürüm>-windows-x64.zip`: zip'i açın, `RedoXGaming.exe`'yi çalıştırın |
+| Linux (x64) | ✅ `RedoXGaming-<sürüm>-linux-x64.tar.gz`: açın, `RedoXGaming.x86_64`'ü çalıştırın |
+| Android TV / Android telefon (arm64 + 32 bit armeabi-v7a) | 🧪 `RedoXGaming-<sürüm>-android.apk`: APK'yı kurun ("bilinmeyen kaynaklar"a izin verin); henüz az cihazda denendi |
 
 Gereksinimler: OpenGL 3.3 destekleyen ekran kartı (son ~12 yılın her kartı). İnternet yalnızca ücretsiz mağaza, kapak resimleri ve ilk çekirdek indirmesi için gerekir.
 
@@ -78,10 +84,14 @@ Gereksinimler: OpenGL 3.3 destekleyen ekran kartı (son ~12 yılın her kartı).
 | Oyunda L / R | `Q` / `W` | LB / RB |
 | Oyunda Start / Select | `Enter` / `Shift` | Start / Back (View) |
 | Sekme değiştir | `Q` / `E` | LB / RB |
+| Favori / ara / sırala | `F` / `/` / `O` | X / Y / Select |
+| Son oyuna devam · ayarlar (ana ekran) | `C` · `S` | Y · Start |
+| Geri sar (basılı tut) | `R` | LT / L2 |
+| Hızlı ileri (basılı tut) | `Boşluk` | RT / R2 |
 | Oyun içi menü | `Esc` | Select + Start ya da Guide |
-| Hızlı kaydet / yükle | `F2` / `F4` | oyun içi menü |
+| Hızlı kaydet / yükle (slot 1) | `F2` / `F4` | oyun içi menü |
 
-Oyun içindeki düğmeler SNES düzenine **konuma göre** eşlenir; oyunun A'sı her zaman sağdaki düğmedir.
+Oyun içindeki düğmeler SNES düzenine **konuma göre** eşlenir; oyunun A'sı her zaman sağdaki düğmedir. Bütün tuşlar **Ayarlar → Kontroller**'den değiştirilebilir. Ayrıntılar wiki'de: [Kullanım](../../wiki/Kullanim), [RetroAchievements](../../wiki/RetroAchievements-TR).
 
 ## Kendi oyunlarınızı ekleme
 
@@ -120,11 +130,14 @@ Ayrıntılı anlatım, Linux ve Android: **[docs/TEKNIK.md](docs/TEKNIK.md#derle
 - [x] Pixel art TV arayüzü, platform carousel, duraklatma menüsü
 - [x] Ücretsiz homebrew mağazası, klasör/USB ekleme, kapak resimleri, ihtiyaç anında çekirdek
 - [x] Windows sürümü
-- [ ] Android TV / telefon (APK), telefon için ekran üstü dokunmatik kontroller
-- [ ] Linux sürümü (AppImage)
-- [ ] Ayarlar ekranı: tuş atama, shader'lar (CRT / tarama çizgisi), ses gecikmesi
-- [ ] Favoriler ve son oynananlar
-- [ ] Geri sarma ve hızlı ileri
+- [x] Ayarlar ekranı: dil, tuş atama, görüntü boyutu, CRT / LCD filtreleri
+- [x] Favoriler, son oynananlar, oynama süresi, arama ve sıralama
+- [x] Geri sarma, hızlı ileri, 4 kayıt slotu, kaldığın yerden devam
+- [x] Hileler (kendi kodlarınız + libretro hile veritabanı), RetroAchievements
+- [x] Linux sürümü, Android APK, ekran üstü dokunmatik kontroller, GitHub Actions ile otomatik derleme
+- [ ] Android TV'de daha çok cihazda test, TV başlatıcı afişi
+- [ ] Linux AppImage / Flatpak
+- [ ] Netplay, ses gecikmesi ayarı, donanım çizimli çekirdekler (N64, PSP)
 
 ## Lisans
 

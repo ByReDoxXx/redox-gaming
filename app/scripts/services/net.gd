@@ -3,7 +3,7 @@ extends Node
 ##   var ok: bool = await Net.download(url, "user://x.zip", func(done, total): ...)
 ##   var text: String = await Net.fetch_text(url)
 
-const USER_AGENT := "RedoXGaming/0.1 (+https://github.com)"
+var USER_AGENT := "RedoXGaming/%s (+https://github.com/ByReDoxXx/redox-gaming)" % ProjectSettings.get_setting("application/config/version", "0")
 
 var _active := {}   # HTTPRequest -> Callable(progress)
 
@@ -55,3 +55,20 @@ func fetch_text(url: String, timeout := 60.0) -> String:
 			text = (res[3] as PackedByteArray).get_string_from_utf8()
 	req.queue_free()
 	return text
+
+
+## Any request; returns [http status (0 on network error), body bytes].
+func request(url: String, method := HTTPClient.METHOD_GET, body := "", headers: PackedStringArray = [], timeout := 30.0) -> Array:
+	var req := HTTPRequest.new()
+	req.timeout = timeout
+	req.use_threads = true
+	add_child(req)
+	var h := PackedStringArray(["User-Agent: " + USER_AGENT])
+	h.append_array(headers)
+	var out := [0, PackedByteArray()]
+	if req.request(url, h, method, body) == OK:
+		var res: Array = await req.request_completed
+		if res[0] == HTTPRequest.RESULT_SUCCESS:
+			out = [res[1], res[3]]
+	req.queue_free()
+	return out

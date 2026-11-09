@@ -77,6 +77,33 @@ func _initialize() -> void:
 			missing += ch
 	print("  font: Turkish letters missing: '%s'" % missing)
 
+	# rewind: record while running, hold A to change the colour, rewind past it
+	host.set_button(0, BTN_A, false)
+	run_frames(host, 5)
+	host.set_rewind_enabled(true)
+	host.set_paused(false)
+	await create_timer(0.6).timeout
+	var before := center_color(host)
+	host.set_button(0, BTN_A, true)
+	await create_timer(0.6).timeout
+	host.set_button(0, BTN_A, false)
+	var during := center_color(host)
+	check(host.get_rewind_depth() > 20, "rewind records states (%d)" % host.get_rewind_depth())
+	host.set_rewinding(true)
+	await create_timer(1.5).timeout
+	host.set_rewinding(false)
+	var after := center_color(host)
+	check(during != before and after == before, "rewind goes back (%s -> %s -> %s)" % [before.to_html(false), during.to_html(false), after.to_html(false)])
+
+	# fast forward runs more frames per second
+	host.set_speed(4.0)
+	await create_timer(0.3).timeout
+	host.set_speed(1.0)
+	check(true, "fast forward runs")
+	host.cheat_reset()
+	host.cheat_set(0, true, "SXIOPO")
+	check(true, "cheat calls are safe")
+
 	host.unload_core()
 	print("frames saved to ", ProjectSettings.globalize_path(OUT % "*"))
 	print("RESULT: ", "PASS" if failures == 0 else "%d FAILED" % failures)

@@ -51,8 +51,35 @@ var selected_game := ""
 var selected_system := ""
 var last_system := "nes"
 
+## Screens that list games from every platform (carousel entries before the systems).
+const VIRTUAL := {
+	"recent": {"key": "RECENT", "accent": "ffc23d"},
+	"favorites": {"key": "FAVORITES", "accent": "ff7a1a"},
+}
+
+## Menu actions beyond Godot's ui_* ones: [action, gamepad button, keys...]
+const ACTIONS := [
+	["rx_continue", JOY_BUTTON_Y, KEY_C],
+	["rx_settings", JOY_BUTTON_START, KEY_F1, KEY_S],
+	["rx_fav", JOY_BUTTON_X, KEY_F],
+	["rx_search", JOY_BUTTON_Y, KEY_SLASH, KEY_F3],
+	["rx_sort", JOY_BUTTON_BACK, KEY_O],
+]
+
 var _ext_to_system := {}
 var _icons := {}
+var _last_back := -1000
+
+
+## Android reports one press of the remote's back button twice: as a KEY_BACK
+## key event and as NOTIFICATION_WM_GO_BACK_REQUEST. Screens call this for
+## both; it is true only for the first of the pair.
+func take_back() -> bool:
+	var now := Time.get_ticks_msec()
+	if now - _last_back < 250:
+		return false
+	_last_back = now
+	return true
 
 
 func _ready() -> void:
@@ -62,6 +89,18 @@ func _ready() -> void:
 		for e in SYSTEMS[id]["ext"]:
 			_ext_to_system[e] = id
 	theme = _build_theme()
+	RetroInput.load_bindings()
+	for a in ACTIONS:
+		if InputMap.has_action(a[0]):
+			continue
+		InputMap.add_action(a[0])
+		var jb := InputEventJoypadButton.new()
+		jb.button_index = a[1]
+		InputMap.action_add_event(a[0], jb)
+		for i in range(2, a.size()):
+			var k := InputEventKey.new()
+			k.physical_keycode = a[i]
+			InputMap.action_add_event(a[0], k)
 	# Movie Maker screenshots: ignore stray keyboard/mouse input on the window
 	if OS.has_feature("movie"):
 		get_tree().root.gui_disable_input = true
@@ -76,15 +115,32 @@ func system_of(path: String) -> String:
 	return _ext_to_system.get(path.get_extension().to_lower(), "")
 
 
+## Interface text in the chosen language (scripts/strings.gd).
+func t(key: String, args: Array = []) -> String:
+	var row = Strings.T.get(key)
+	if row == null:
+		return key
+	var s: String = row[Strings.lang_index(Settings.get_value("lang"))]
+	return s % args if not args.is_empty() else s
+
+
+func is_virtual(id: String) -> bool:
+	return VIRTUAL.has(id)
+
+
 func system_name(id: String) -> String:
 	if id == "all":
-		return "TÜMÜ"
+		return t("ALL")
+	if VIRTUAL.has(id):
+		return t(VIRTUAL[id]["key"])
 	return SYSTEMS[id]["name"] if SYSTEMS.has(id) else "?"
 
 
 func system_accent(id: String) -> Color:
 	if id == "all":
 		return C_GOLD
+	if VIRTUAL.has(id):
+		return Color(VIRTUAL[id]["accent"])
 	return Color(SYSTEMS[id]["accent"]) if SYSTEMS.has(id) else C_LINE
 
 
@@ -92,7 +148,13 @@ func system_accent(id: String) -> Color:
 func system_icon(id: String) -> Texture2D:
 	if not _icons.has(id):
 		var hd := "res://assets/svg/systems/%s.svg" % id
-		_icons[id] = load(hd) if ResourceLoader.exists(hd) else load("res://assets/svg/pixel/%s.svg" % id)
+		var ui := "res://assets/svg/ui/%s.svg" % id
+		if ResourceLoader.exists(hd):
+			_icons[id] = load(hd)
+		elif ResourceLoader.exists(ui):
+			_icons[id] = load(ui)
+		else:
+			_icons[id] = load("res://assets/svg/pixel/%s.svg" % id)
 	return _icons[id]
 
 
@@ -120,6 +182,8 @@ func dev_arg(name: String) -> String:
 ## can finish safely: touching get_viewport() after an immediate scene change
 ## crashed release builds.
 func go(scene: String) -> void:
+	if has_node("/root/Sfx"):
+		get_node("/root/Sfx").hush()
 	get_tree().change_scene_to_file.call_deferred("res://scenes/%s.tscn" % scene)
 
 
@@ -185,6 +249,17 @@ func _build_theme() -> Theme:
 	panel.shadow_size = 1
 	panel.shadow_offset = Vector2(12, 12)
 	t.set_stylebox("panel", "PanelContainer", panel)
+
+	var edit := box(C_SURFACE, C_LINE)
+	t.set_stylebox("normal", "LineEdit", edit)
+	t.set_stylebox("focus", "LineEdit", box(Color(0, 0, 0, 0), C_GOLD, FOCUS_BORDER))
+	t.set_color("font_color", "LineEdit", C_TEXT)
+	t.set_color("font_placeholder_color", "LineEdit", C_MUTED)
+	t.set_color("caret_color", "LineEdit", C_GOLD)
+	t.set_font_size("font_size", "LineEdit", 24)
+
+	var check_off := box(C_SURFACE, C_LINE)
+	t.set_stylebox("normal", "CheckButton", check_off)
 
 	var scroll := StyleBoxEmpty.new()
 	t.set_stylebox("panel", "ScrollContainer", scroll)

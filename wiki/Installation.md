@@ -13,11 +13,18 @@ No installer, no admin rights. To remove it, delete the folder (and, if you like
 
 ## Linux (x64)
 
-A packaged release is coming. Until then, [build from source](Building-from-Source).
+1. Download `RedoXGaming-<version>-linux-x64.tar.gz` from **[Releases](https://github.com/ByReDoxXx/redox-gaming/releases)**.
+2. Unpack it: `tar -xzf RedoXGaming-*-linux-x64.tar.gz -C ~/Games/RedoX`
+3. Run `./RedoXGaming.x86_64`. Keep `libredox_core.linux.template_release.x86_64.so` next to it.
 
-## Android TV / Android phone
+## Android TV / Android phone (arm64 or 32-bit ARM)
 
-Planned for the next release (APK). The interface is already designed for the TV remote.
+1. Download `RedoXGaming-<version>-android.apk` from Releases.
+2. **Phone:** open the APK and allow installing from this source.
+   **Android TV:** copy the APK to a USB stick and open it with a file manager, or send it with an app such as *Send files to TV*; allow "unknown sources" for that app.
+3. On TV, RedoX Gaming is in the app list (Apps). To add your own games from a USB stick, allow "access to all files" when asked.
+
+The Android build is new: please [report](https://github.com/ByReDoxXx/redox-gaming/issues) anything that does not work on your device.
 
 ## System requirements
 

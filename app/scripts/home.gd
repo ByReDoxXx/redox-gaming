@@ -1,6 +1,8 @@
 extends Control
 ## Home: RedoX logo on top, platform carousel underneath (left/right to browse,
-## A to open). Rules: docs/DESIGN.md → Home.
+## A to open). "Recently played" and "Favourites" lead the carousel when they
+## have games. Y continues the last game, START opens the settings.
+## Rules: docs/DESIGN.md → Home.
 
 const SPACING := 400.0          # distance between neighbouring platforms
 const SIZE_CENTER := 360.0
@@ -19,12 +21,24 @@ var _name_label: Label
 var _count_label: Label
 var _dots: HBoxContainer
 var _drag := 0.0
+var _update_badge: Button
+var _last_game := {}
 
 
 func _ready() -> void:
 	theme = App.theme
-	_ids = App.system_ids()
-	for id in _ids:
+	_ids = []
+	var recent := Stats.recent()
+	if not recent.is_empty():
+		_ids.append("recent")
+		_counts["recent"] = recent.size()
+		_last_game = recent[0]
+	var favs := Stats.favorites()
+	if not favs.is_empty():
+		_ids.append("favorites")
+		_counts["favorites"] = favs.size()
+	_ids.append_array(App.system_ids())
+	for id in App.system_ids():
 		_counts[id] = Library.count(id)
 	_index = maxi(0, _ids.find(App.last_system))
 
@@ -79,7 +93,13 @@ func _ready() -> void:
 	var spacer := Control.new()
 	spacer.custom_minimum_size.y = 36
 	col.add_child(spacer)
-	col.add_child(HintBar.build([[["<", ">"], "PLATFORM SEÇ"], [["A"], "OYUNLARI AÇ"]], true))
+	var hints := [[["<", ">"], App.t("PICK_PLATFORM")], [["A"], App.t("OPEN_GAMES")]]
+	if not _last_game.is_empty():
+		hints.append([["Y"], App.t("CONTINUE") + ": " + _short(String(_last_game.title))])
+	hints.append([["START"], App.t("SETTINGS")])
+	col.add_child(HintBar.build(hints, true))
+
+	_build_corner_buttons()
 
 	for id in _ids:
 		var t := TextureRect.new()
@@ -102,6 +122,9 @@ func _ready() -> void:
 	if not dev_system.is_empty():
 		App.last_system = dev_system
 		App.go.call_deferred("games")
+	var dev_scene := App.dev_arg("--scene")
+	if not dev_scene.is_empty():
+		App.go.call_deferred(dev_scene)
 	var dev_rom := App.dev_arg("--rom")
 	if not dev_rom.is_empty():
 		App.selected_game = dev_rom
@@ -147,9 +170,9 @@ func _layout(animate := true) -> void:
 	var count: int = _counts.get(id, 0)
 	_name_label.text = App.system_name(id)
 	_name_label.add_theme_color_override("font_color", App.system_accent(id).lerp(App.C_TEXT, 0.25))
-	var line := "%d OYUN" % count if count > 0 else "HENÜZ OYUN YOK"
+	var line := (App.t("ONE_GAME") if count == 1 else App.t("N_GAMES", [count])) if count > 0 else App.t("NO_GAMES_YET")
 	if Catalog.has_store(id):
-		line += "  ·  ÜCRETSİZ OYUNLAR VAR"
+		line += "  ·  " + App.t("FREE_GAMES_AVAILABLE")
 	_count_label.text = line
 	for i in _dots.get_child_count():
 		var dot: ColorRect = _dots.get_child(i)
@@ -159,14 +182,84 @@ func _layout(animate := true) -> void:
 
 
 func _move(step: int) -> void:
+	Sfx.play("move")
 	_index = wrapi(_index + step, 0, _ids.size())
 	App.last_system = _ids[_index]
 	_layout(true)
 
 
 func _open() -> void:
+	Sfx.play("select")
 	App.last_system = _ids[_index]
 	App.go("games")
+
+
+func _continue_last() -> void:
+	if _last_game.is_empty():
+		Sfx.play("error")
+		return
+	Sfx.play("select")
+	App.selected_game = _last_game.path
+	App.selected_system = _last_game.system
+	App.last_system = _last_game.system
+	App.go("player" if not Cores.find(_last_game.system).is_empty() else "games")
+
+
+func _open_settings() -> void:
+	Sfx.play("select")
+	App.go("settings")
+
+
+func _short(t: String) -> String:
+	return t if t.length() <= 18 else t.substr(0, 17) + "…"
+
+
+## Settings gear (top right) and the new-version badge (top left), for mouse
+## and touch; the pad uses START.
+func _build_corner_buttons() -> void:
+	var gear := Button.new()
+	var gi := TextureRect.new()
+	gi.texture = load("res://assets/svg/ui/settings.svg")
+	gi.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	gi.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	gi.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	gi.offset_left = 16
+	gi.offset_top = 16
+	gi.offset_right = -16
+	gi.offset_bottom = -16
+	gi.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	gear.add_child(gi)
+	gear.focus_mode = Control.FOCUS_NONE
+	gear.set_meta("silent", true)
+	gear.custom_minimum_size = Vector2(96, 96)
+	gear.tooltip_text = App.t("SETTINGS")
+	gear.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	gear.offset_left = -App.SAFE_X - 96
+	gear.offset_right = -App.SAFE_X
+	gear.offset_top = App.SAFE_Y
+	gear.offset_bottom = App.SAFE_Y + 96
+	gear.pressed.connect(_open_settings)
+	add_child(gear)
+
+	_update_badge = Button.new()
+	_update_badge.focus_mode = Control.FOCUS_NONE
+	_update_badge.set_meta("silent", true)
+	_update_badge.add_theme_font_size_override("font_size", 16)
+	_update_badge.add_theme_stylebox_override("normal", App.box(App.C_GOLD.darkened(0.55), App.C_GOLD))
+	_update_badge.add_theme_color_override("font_color", App.C_GOLD)
+	_update_badge.position = Vector2(App.SAFE_X, App.SAFE_Y)
+	_update_badge.pressed.connect(func(): App.go("settings"))
+	_update_badge.visible = false
+	add_child(_update_badge)
+	_show_update(Updates.available())
+	Updates.checked.connect(func(_v): _show_update(Updates.available()))
+	Updates.check_daily()
+
+
+func _show_update(version: String) -> void:
+	if _update_badge and not version.is_empty():
+		_update_badge.text = App.t("UPDATE_AVAILABLE", [version])
+		_update_badge.visible = true
 
 
 # ------------------------------------------------------------------ input
@@ -179,6 +272,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("ui_accept"):
 		get_viewport().set_input_as_handled()
 		_open()
+		return
+	elif event.is_action_pressed("rx_continue"):
+		get_viewport().set_input_as_handled()
+		_continue_last()
+		return
+	elif event.is_action_pressed("rx_settings"):
+		get_viewport().set_input_as_handled()
+		_open_settings()
 		return
 	elif event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP or event.button_index == MOUSE_BUTTON_WHEEL_LEFT:
@@ -198,6 +299,13 @@ func _unhandled_input(event: InputEvent) -> void:
 	else:
 		return
 	get_viewport().set_input_as_handled()
+
+
+## Android back button on the home screen leaves the app (every other screen
+## handles it as "back"; quit_on_go_back is off in the project settings).
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST and App.take_back():
+		get_tree().quit()
 
 
 func _on_tile_input(event: InputEvent, tile: TextureRect) -> void:

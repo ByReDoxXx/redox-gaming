@@ -6,11 +6,21 @@
 
 env = SConscript("godot-cpp/SConstruct")
 
-env.Append(CPPPATH=["src/", "include/"])
+env.Append(CPPPATH=["src/", "include/", "rcheevos/include/", "rcheevos/src/"])
+env.Append(CPPDEFINES=["RC_CLIENT_SUPPORTS_HASH"])
 if env["platform"] in ("linux", "android"):
     env.Append(LIBS=["dl"])
 
 sources = Glob("src/*.cpp")
+
+# rcheevos (RetroAchievements, MIT): plain C, compiled into the same library
+rc_dirs = ["rcheevos/src/", "rcheevos/src/rapi/", "rcheevos/src/rcheevos/", "rcheevos/src/rhash/"]
+rc_env = env.Clone()
+if env["platform"] == "windows" and not env.get("use_mingw", False):
+    rc_env.Append(CCFLAGS=["/wd4244", "/wd4267", "/wd4996"])
+    rc_env.Append(CPPDEFINES=["_CRT_SECURE_NO_WARNINGS"])
+for d in rc_dirs:
+    sources += [rc_env.SharedObject(f) for f in Glob(d + "*.c")]
 
 prefix = "" if env["platform"] == "windows" else "lib"
 target = "../app/bin/{}/{}redox_core{}{}".format(env["platform"], prefix, env["suffix"], env["SHLIBSUFFIX"])

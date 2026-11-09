@@ -9,6 +9,7 @@
 #include <godot_cpp/variant/packed_vector2_array.hpp>
 
 #include <cstdint>
+#include <deque>
 #include <map>
 #include <string>
 #include <vector>
@@ -16,6 +17,8 @@
 #include "libretro.h"
 
 namespace godot {
+
+class RAClient;
 
 // RetroHost loads one libretro core and one game, runs it at the core's
 // frame rate inside _process, and exposes the picture as an ImageTexture and
@@ -40,6 +43,30 @@ public:
 	void set_paused(bool p_paused) { paused = p_paused; }
 	bool is_paused() const { return paused; }
 	void step_frame();
+	void set_speed(double p_speed) { speed = p_speed < 0.25 ? 0.25 : (p_speed > 8.0 ? 8.0 : p_speed); }
+	double get_speed() const { return speed; }
+
+	// Rewind: a ring of compressed save states, recorded while the game runs.
+	void set_rewind_enabled(bool p_enabled);
+	bool is_rewind_enabled() const { return rewind_enabled; }
+	void set_rewind_budget_mb(int p_mb) { rewind_budget = size_t(p_mb < 4 ? 4 : p_mb) * 1024 * 1024; }
+	void set_rewinding(bool p_rewinding) { rewinding = p_rewinding; }
+	bool is_rewinding() const { return rewinding; }
+	int get_rewind_depth() const { return int(rewind_deltas.size()); }
+
+	// Cheats (Game Genie, Action Replay, raw codes - whatever the core accepts)
+	void cheat_reset();
+	void cheat_set(int p_index, bool p_enabled, const String &p_code);
+
+	// Raw memory for achievements / tools (RETRO_MEMORY_*)
+	PackedByteArray get_memory(int p_id) const;
+
+	// Used by RAClient (C++ only)
+	void set_achievements_client(RAClient *p_client) { ra = p_client; }
+	const retro_memory_map *get_memory_map() const { return has_mmap ? &mmap : nullptr; }
+	void *core_memory_data(unsigned p_id) const { return game_loaded && core.get_memory_data ? core.get_memory_data(p_id) : nullptr; }
+	size_t core_memory_size(unsigned p_id) const { return game_loaded && core.get_memory_size ? core.get_memory_size(p_id) : 0; }
+	const std::vector<uint8_t> &rom_bytes() const { return rom_data; }
 
 	// Input: libretro joypad ids (RETRO_DEVICE_ID_JOYPAD_*) for ports 0..3
 	void set_button(int p_port, int p_id, bool p_pressed);
@@ -101,7 +128,13 @@ private:
 		void (*unload_game)(void) = nullptr;
 		void *(*get_memory_data)(unsigned) = nullptr;
 		size_t (*get_memory_size)(unsigned) = nullptr;
+		void (*cheat_reset)(void) = nullptr;
+		void (*cheat_set)(unsigned, bool, const char *) = nullptr;
 	};
+
+	void rewind_push();
+	bool rewind_pop();
+	void rewind_clear();
 
 	void flush_audio();
 	void load_sram();
@@ -146,6 +179,21 @@ private:
 	uint16_t input_mask[4] = { 0, 0, 0, 0 };
 
 	double time_accumulator = 0.0;
+	double speed = 1.0;
+
+	bool rewind_enabled = false;
+	bool rewinding = false;
+	size_t rewind_budget = 48 * 1024 * 1024;
+	size_t rewind_bytes = 0;
+	int rewind_counter = 0;
+	std::vector<uint8_t> rewind_current;            // newest full state
+	std::deque<std::vector<uint8_t>> rewind_deltas; // XOR(older, newer), run-length coded
+	bool mute_frame = false;
+
+	RAClient *ra = nullptr;
+	std::vector<retro_memory_descriptor> mmap_descriptors;
+	retro_memory_map mmap{};
+	bool has_mmap = false;
 };
 
 } // namespace godot

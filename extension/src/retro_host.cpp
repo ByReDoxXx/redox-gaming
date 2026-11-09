@@ -1,6 +1,7 @@
 #include "retro_host.h"
 
 #include "dynlib.h"
+#include "ra_client.h"
 
 #include <godot_cpp/classes/dir_access.hpp>
 #include <godot_cpp/classes/file_access.hpp>
@@ -145,6 +146,9 @@ bool RetroHost::load_core(const String &p_path) {
 	LOAD_SYM(get_memory_data, "retro_get_memory_data");
 	LOAD_SYM(get_memory_size, "retro_get_memory_size");
 #undef LOAD_SYM
+	// optional
+	core.cheat_reset = reinterpret_cast<decltype(core.cheat_reset)>(redox::dynlib_symbol(lib_handle, "retro_cheat_reset"));
+	core.cheat_set = reinterpret_cast<decltype(core.cheat_set)>(redox::dynlib_symbol(lib_handle, "retro_cheat_set"));
 
 	if (!ok) {
 		redox::dynlib_close(lib_handle);
@@ -161,6 +165,8 @@ bool RetroHost::load_core(const String &p_path) {
 	core_path = p_path;
 	pixel_format = RETRO_PIXEL_FORMAT_0RGB1555;
 	variables.clear();
+	has_mmap = false;
+	mmap_descriptors.clear();
 
 	core.set_environment(cb_environment);
 	core.set_video_refresh(cb_video);
@@ -241,6 +247,9 @@ bool RetroHost::load_game(const String &p_path) {
 	frame_h = int(av_info.geometry.base_height);
 	time_accumulator = 0.0;
 	paused = false;
+	speed = 1.0;
+	rewinding = false;
+	rewind_clear();
 	clear_input();
 	load_sram();
 	set_process(true);
@@ -255,8 +264,12 @@ void RetroHost::unload_game() {
 		return;
 	}
 	write_sram();
+	if (ra) {
+		ra->unload_game();
+	}
 	core.unload_game();
 	game_loaded = false;
+	rewind_clear();
 	rom_data.clear();
 	audio_buffer.clear();
 	audio_buffer_frames = 0;
@@ -266,22 +279,49 @@ void RetroHost::unload_game() {
 void RetroHost::reset() {
 	if (game_loaded) {
 		core.reset();
+		if (ra) {
+			ra->on_reset();
+		}
 	}
 }
 
 // ------------------------------------------------------------------ running
 
 void RetroHost::_process(double p_delta) {
-	if (!game_loaded || paused) {
+	if (!game_loaded) {
+		return;
+	}
+	if (paused) {
+		if (ra) {
+			ra->idle(); // keeps the achievement session alive while paused
+		}
 		return;
 	}
 	const double fps = av_info.timing.fps > 1.0 ? av_info.timing.fps : 60.0;
 	const double frame_time = 1.0 / fps;
+	const double rate = rewinding ? 1.0 : speed;
+	const int max_frames = 4 * int(rate + 0.999);
 
-	time_accumulator += p_delta;
+	time_accumulator += p_delta * rate;
 	int frames = 0;
-	while (time_accumulator >= frame_time && frames < 4) {
-		step_frame();
+	while (time_accumulator >= frame_time && frames < max_frames) {
+		if (rewinding) {
+			// step back one recorded state, then run a silent frame to show it
+			if (rewind_pop()) {
+				mute_frame = true;
+				step_frame();
+				mute_frame = false;
+			}
+		} else {
+			// fast forward: keep the sound of only one frame per tick
+			mute_frame = speed > 1.0 && frames > 0;
+			step_frame();
+			mute_frame = false;
+			if (rewind_enabled && ++rewind_counter >= 2) {
+				rewind_counter = 0;
+				rewind_push();
+			}
+		}
 		time_accumulator -= frame_time;
 		frames++;
 	}
@@ -297,7 +337,168 @@ void RetroHost::step_frame() {
 	}
 	audio_buffer_frames = 0;
 	core.run();
-	flush_audio();
+	if (ra) {
+		ra->do_frame();
+	}
+	if (mute_frame) {
+		last_audio_frames = audio_buffer_frames;
+		audio_buffer_frames = 0;
+	} else {
+		flush_audio();
+	}
+}
+
+// ------------------------------------------------------------------ rewind
+//
+// Only the newest state is kept whole. Each older one is stored as the XOR
+// with its successor, run-length coded: consecutive emulator states differ in
+// a few hundred bytes, so a delta is usually tiny.
+//   delta format: repeated [u32 equal_run][u32 literal_len][literal xor bytes]
+
+namespace {
+
+void rle_xor_encode(const std::vector<uint8_t> &a, const std::vector<uint8_t> &b, std::vector<uint8_t> &out) {
+	out.clear();
+	const size_t n = a.size();
+	auto put32 = [&out](uint32_t v) {
+		for (int k = 0; k < 4; k++) {
+			out.push_back(uint8_t(v >> (k * 8)));
+		}
+	};
+	size_t i = 0;
+	while (i < n) {
+		size_t z = i;
+		while (z < n && a[z] == b[z]) {
+			z++;
+		}
+		if (z == n) {
+			break; // trailing equal bytes need no record
+		}
+		// literal run: until 8 equal bytes in a row (or the end)
+		size_t l = z;
+		size_t same = 0;
+		while (l < n) {
+			if (a[l] == b[l]) {
+				same++;
+				if (same >= 8) {
+					l = l + 1 - same;
+					break;
+				}
+			} else {
+				same = 0;
+			}
+			l++;
+		}
+		if (l >= n) {
+			l = n;
+		}
+		put32(uint32_t(z - i));
+		put32(uint32_t(l - z));
+		for (size_t k = z; k < l; k++) {
+			out.push_back(uint8_t(a[k] ^ b[k]));
+		}
+		i = l;
+	}
+}
+
+void rle_xor_apply(const std::vector<uint8_t> &delta, std::vector<uint8_t> &state) {
+	size_t p = 0, i = 0;
+	auto get32 = [&delta, &p]() {
+		uint32_t v = 0;
+		for (int k = 0; k < 4; k++) {
+			v |= uint32_t(delta[p++]) << (k * 8);
+		}
+		return v;
+	};
+	while (p + 8 <= delta.size()) {
+		i += get32();
+		const uint32_t len = get32();
+		for (uint32_t k = 0; k < len && i < state.size() && p < delta.size(); k++) {
+			state[i++] ^= delta[p++];
+		}
+	}
+}
+
+} // namespace
+
+void RetroHost::set_rewind_enabled(bool p_enabled) {
+	rewind_enabled = p_enabled;
+	if (!p_enabled) {
+		rewind_clear();
+	}
+}
+
+void RetroHost::rewind_clear() {
+	rewind_current.clear();
+	rewind_deltas.clear();
+	rewind_bytes = 0;
+	rewind_counter = 0;
+}
+
+void RetroHost::rewind_push() {
+	const size_t size = core.serialize_size();
+	if (size == 0) {
+		return;
+	}
+	std::vector<uint8_t> next(size);
+	if (!core.serialize(next.data(), size)) {
+		return;
+	}
+	if (rewind_current.size() != size) {
+		rewind_clear();
+		rewind_current.swap(next);
+		return;
+	}
+	std::vector<uint8_t> delta;
+	rle_xor_encode(rewind_current, next, delta);
+	rewind_bytes += delta.size();
+	rewind_deltas.push_back(std::move(delta));
+	rewind_current.swap(next);
+	while (rewind_bytes > rewind_budget && !rewind_deltas.empty()) {
+		rewind_bytes -= rewind_deltas.front().size();
+		rewind_deltas.pop_front();
+	}
+}
+
+bool RetroHost::rewind_pop() {
+	if (rewind_current.empty()) {
+		return false;
+	}
+	if (!rewind_deltas.empty()) {
+		rle_xor_apply(rewind_deltas.back(), rewind_current);
+		rewind_bytes -= rewind_deltas.back().size();
+		rewind_deltas.pop_back();
+	}
+	// at the oldest state we keep showing it
+	return core.unserialize(rewind_current.data(), rewind_current.size());
+}
+
+// ------------------------------------------------------------------ cheats
+
+void RetroHost::cheat_reset() {
+	if (game_loaded && core.cheat_reset) {
+		core.cheat_reset();
+	}
+}
+
+void RetroHost::cheat_set(int p_index, bool p_enabled, const String &p_code) {
+	if (game_loaded && core.cheat_set) {
+		core.cheat_set(unsigned(p_index), p_enabled, p_code.utf8().get_data());
+	}
+}
+
+PackedByteArray RetroHost::get_memory(int p_id) const {
+	PackedByteArray out;
+	if (!game_loaded) {
+		return out;
+	}
+	void *mem = core.get_memory_data(unsigned(p_id));
+	const size_t size = core.get_memory_size(unsigned(p_id));
+	if (mem && size) {
+		out.resize(int64_t(size));
+		memcpy(out.ptrw(), mem, size);
+	}
+	return out;
 }
 
 // ------------------------------------------------------------------- input
@@ -513,6 +714,17 @@ bool RetroHost::on_environment(unsigned p_cmd, void *p_data) {
 			av_info = *static_cast<const retro_system_av_info *>(p_data);
 			return true;
 		}
+		case RETRO_ENVIRONMENT_SET_MEMORY_MAPS: {
+			// kept for achievements: where the console's RAM lives in the core
+			const retro_memory_map *m = static_cast<const retro_memory_map *>(p_data);
+			if (m && m->descriptors && m->num_descriptors) {
+				mmap_descriptors.assign(m->descriptors, m->descriptors + m->num_descriptors);
+				mmap.descriptors = mmap_descriptors.data();
+				mmap.num_descriptors = unsigned(mmap_descriptors.size());
+				has_mmap = true;
+			}
+			return true;
+		}
 		case RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS:
 		case RETRO_ENVIRONMENT_SET_CONTROLLER_INFO:
 		case RETRO_ENVIRONMENT_SET_SUPPORT_ACHIEVEMENTS:
@@ -606,7 +818,11 @@ bool RetroHost::load_state(const PackedByteArray &p_data) {
 	if (!game_loaded || p_data.is_empty()) {
 		return false;
 	}
-	return core.unserialize(p_data.ptr(), size_t(p_data.size()));
+	const bool ok = core.unserialize(p_data.ptr(), size_t(p_data.size()));
+	if (ok && ra) {
+		ra->on_state_loaded();
+	}
+	return ok;
 }
 
 Dictionary RetroHost::get_core_info() const {
@@ -636,6 +852,17 @@ void RetroHost::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_paused", "paused"), &RetroHost::set_paused);
 	ClassDB::bind_method(D_METHOD("is_paused"), &RetroHost::is_paused);
 	ClassDB::bind_method(D_METHOD("step_frame"), &RetroHost::step_frame);
+	ClassDB::bind_method(D_METHOD("set_speed", "speed"), &RetroHost::set_speed);
+	ClassDB::bind_method(D_METHOD("get_speed"), &RetroHost::get_speed);
+	ClassDB::bind_method(D_METHOD("set_rewind_enabled", "enabled"), &RetroHost::set_rewind_enabled);
+	ClassDB::bind_method(D_METHOD("is_rewind_enabled"), &RetroHost::is_rewind_enabled);
+	ClassDB::bind_method(D_METHOD("set_rewind_budget_mb", "mb"), &RetroHost::set_rewind_budget_mb);
+	ClassDB::bind_method(D_METHOD("set_rewinding", "rewinding"), &RetroHost::set_rewinding);
+	ClassDB::bind_method(D_METHOD("is_rewinding"), &RetroHost::is_rewinding);
+	ClassDB::bind_method(D_METHOD("get_rewind_depth"), &RetroHost::get_rewind_depth);
+	ClassDB::bind_method(D_METHOD("cheat_reset"), &RetroHost::cheat_reset);
+	ClassDB::bind_method(D_METHOD("cheat_set", "index", "enabled", "code"), &RetroHost::cheat_set);
+	ClassDB::bind_method(D_METHOD("get_memory", "id"), &RetroHost::get_memory);
 
 	ClassDB::bind_method(D_METHOD("set_button", "port", "id", "pressed"), &RetroHost::set_button);
 	ClassDB::bind_method(D_METHOD("clear_input"), &RetroHost::clear_input);

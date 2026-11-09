@@ -1,3 +1,4 @@
+#include "ra_client.h"
 #include "retro_host.h"
 
 #include <gdextension_interface.h>
@@ -12,6 +13,7 @@ static void initialize_redox_module(ModuleInitializationLevel p_level) {
 		return;
 	}
 	GDREGISTER_CLASS(RetroHost);
+	GDREGISTER_CLASS(RAClient);
 }
 
 static void uninitialize_redox_module(ModuleInitializationLevel p_level) {

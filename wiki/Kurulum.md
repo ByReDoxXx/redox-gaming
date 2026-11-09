@@ -13,11 +13,18 @@ Kurulum programı ve yönetici izni gerekmez. Kaldırmak için klasörü silmeni
 
 ## Linux (x64)
 
-Paketli sürüm yolda. O zamana kadar [kaynaktan derleyebilirsiniz](Kaynaktan-Derleme).
+1. **[Releases](https://github.com/ByReDoxXx/redox-gaming/releases)** sayfasından `RedoXGaming-<sürüm>-linux-x64.tar.gz` dosyasını indirin.
+2. Açın: `tar -xzf RedoXGaming-*-linux-x64.tar.gz -C ~/Oyunlar/RedoX`
+3. `./RedoXGaming.x86_64`'ü çalıştırın. `libredox_core.linux.template_release.x86_64.so` yanında kalmalı.
 
-## Android TV / Android telefon
+## Android TV / Android telefon (arm64 ya da 32 bit ARM)
 
-Bir sonraki sürümde (APK) gelecek. Arayüz zaten TV kumandasına göre tasarlandı.
+1. Releases sayfasından `RedoXGaming-<sürüm>-android.apk` dosyasını indirin.
+2. **Telefon:** APK'yı açın ve bu kaynaktan kuruluma izin verin.
+   **Android TV:** APK'yı bir USB belleğe kopyalayıp dosya yöneticisiyle açın ya da *Send files to TV* gibi bir uygulamayla gönderin; o uygulama için "bilinmeyen kaynaklar"a izin verin.
+3. TV'de RedoX Gaming uygulamalar listesindedir. USB bellekten kendi oyunlarınızı eklemek için sorulduğunda "tüm dosyalara erişim" izni verin.
+
+Android sürümü yeni: cihazınızda çalışmayan bir şey olursa lütfen [bildirin](https://github.com/ByReDoxXx/redox-gaming/issues).
 
 ## Sistem gereksinimleri
 

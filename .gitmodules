@@ -2,3 +2,6 @@
 	path = extension/godot-cpp
 	url = https://github.com/godotengine/godot-cpp
 	branch = 4.5
+[submodule "extension/rcheevos"]
+	path = extension/rcheevos
+	url = https://github.com/RetroAchievements/rcheevos

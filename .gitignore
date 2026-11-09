@@ -28,3 +28,6 @@ build.log
 # Build output and logs
 build/
 *.log
+
+# Android Gradle build template (tools/setup_android_build.py)
+app/android/

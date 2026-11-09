@@ -151,6 +151,11 @@ func rescan() -> void:
 	for src in sources:
 		_scan_dir(src, "", found, 0)
 
+	# the editor sees the bundled test ROM twice: in res://roms and its copy in user://roms
+	for path in found.keys():
+		if path.begins_with("res://") and found.has(system_dir(found[path]).path_join(path.get_file())):
+			found.erase(path)
+
 	games.clear()
 	for path in found:
 		games.append(_entry(path, found[path]))

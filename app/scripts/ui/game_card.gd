@@ -12,6 +12,8 @@ const ICON := 176.0
 var data := {}
 var accent := Color.WHITE
 var badge := ""
+var badge_ok := false         # green "installed" badge instead of gold
+var favorite := false
 var progress := -1.0          # 0..1 while downloading, -1 otherwise
 var _lift := 0.0
 var _content: Control
@@ -24,6 +26,7 @@ func setup(d: Dictionary) -> void:
 	data = d
 	accent = App.system_accent(d.get("system", ""))
 	badge = d.get("badge", "")
+	badge_ok = d.get("badge_ok", false)
 
 	for state in ["normal", "hover", "pressed", "hover_pressed", "focus", "disabled"]:
 		add_theme_stylebox_override(state, StyleBoxEmpty.new())
@@ -88,8 +91,15 @@ func set_cover(path: String) -> void:
 	_place()
 
 
-func set_badge(text: String) -> void:
+func set_badge(text: String, ok := false) -> void:
 	badge = text
+	badge_ok = ok
+	if _overlay:
+		_overlay.queue_redraw()
+
+
+func set_favorite(on: bool) -> void:
+	favorite = on
 	if _overlay:
 		_overlay.queue_redraw()
 
@@ -154,10 +164,12 @@ func _draw_overlay() -> void:
 		var font := App.font_pixel
 		var tw := font.get_string_size(badge, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
 		var box := Rect2(Vector2(14, 14), Vector2(tw + 24, 36))
-		var fill := App.C_GOLD if badge != "YÜKLÜ" else Color("2f855a")
+		var fill := App.C_GOLD if not badge_ok else Color("2f855a")
 		_overlay.draw_rect(box, fill)
 		_overlay.draw_string(font, box.position + Vector2(12, 26), badge, HORIZONTAL_ALIGNMENT_LEFT, -1, 16,
-			App.C_BG if badge != "YÜKLÜ" else App.C_TEXT)
+			App.C_BG if not badge_ok else App.C_TEXT)
+	if favorite:
+		_draw_star(Vector2(size.x - 56, 16))
 	if progress >= 0.0:
 		var bar := Rect2(Vector2(14, COVER_H - 30), Vector2(size.x - 28, 16))
 		_overlay.draw_rect(bar, App.C_BG)
@@ -169,3 +181,29 @@ func _frame(r: Rect2, c: Color, w: int) -> void:
 	draw_rect(Rect2(r.position.x, r.end.y - w, r.size.x, w), c)
 	draw_rect(Rect2(r.position, Vector2(w, r.size.y)), c)
 	draw_rect(Rect2(r.end.x - w, r.position.y, w, r.size.y), c)
+
+
+## 10x10 pixel star, 4 px per pixel, gold with a dark outline.
+const STAR := [
+	"....##....",
+	"....##....",
+	"...####...",
+	"##########",
+	".########.",
+	"..######..",
+	"..######..",
+	".###..###.",
+	".##....##.",
+	"##......##",
+]
+
+
+func _draw_star(at: Vector2) -> void:
+	for y in STAR.size():
+		for x in STAR[y].length():
+			if STAR[y][x] == "#":
+				_overlay.draw_rect(Rect2(at + Vector2(x * 4 - 2, y * 4 - 2), Vector2(8, 8)), App.C_BG)
+	for y in STAR.size():
+		for x in STAR[y].length():
+			if STAR[y][x] == "#":
+				_overlay.draw_rect(Rect2(at + Vector2(x * 4, y * 4), Vector2(4, 4)), App.C_GOLD)

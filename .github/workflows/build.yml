@@ -1,0 +1,205 @@
+# Builds RedoX Gaming for Windows, Linux and Android.
+#  - every push / pull request: build and keep the packages as workflow artifacts
+#  - a tag like v0.2.0: also publish them on a GitHub release
+#
+# Android signing (optional repository secrets; without them a throwaway key is
+# used and the APK cannot update an earlier install):
+#   ANDROID_KEYSTORE_BASE64   base64 of the release .keystore file
+#   ANDROID_KEYSTORE_USER     key alias
+#   ANDROID_KEYSTORE_PASSWORD keystore / key password
+
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: 4.7.2
+  NDK_VERSION: 28.1.13356709
+
+jobs:
+  extension:
+    name: Extension (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows
+            os: windows-latest
+            args: platform=windows arch=x86_64
+          - platform: linux
+            os: ubuntu-latest
+            args: platform=linux arch=x86_64
+          - platform: android
+            os: ubuntu-latest
+            args: platform=android arch=arm64
+          - platform: android32          # 32-bit Android TVs (armeabi-v7a)
+            os: ubuntu-latest
+            args: platform=android arch=arm32
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install scons
+
+      - name: Install Android NDK
+        if: startsWith(matrix.platform, 'android')
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;${NDK_VERSION}" > /dev/null
+          echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/${NDK_VERSION}" >> "$GITHUB_ENV"
+
+      - name: Cache SCons objects
+        uses: actions/cache@v4
+        with:
+          path: |
+            extension/godot-cpp/gen
+            extension/godot-cpp/bin
+            extension/**/*.o
+            extension/**/*.os
+            extension/**/*.obj
+            extension/.sconsign.dblite
+          key: scons-${{ matrix.platform }}-${{ hashFiles('extension/godot-cpp/**/*.py', '.gitmodules') }}-${{ github.sha }}
+          restore-keys: scons-${{ matrix.platform }}-${{ hashFiles('extension/godot-cpp/**/*.py', '.gitmodules') }}-
+
+      - name: Build (debug + release)
+        working-directory: extension
+        shell: bash
+        run: |
+          scons ${{ matrix.args }} target=template_debug -j4
+          scons ${{ matrix.args }} target=template_release -j4
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bin-${{ matrix.platform }}
+          path: app/bin/${{ startsWith(matrix.platform, 'android') && 'android' || matrix.platform }}/
+
+  export:
+    name: Export packages
+    needs: extension
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: bin-*
+          path: artifacts
+
+      - name: Put the libraries in app/bin
+        run: |
+          for p in windows linux android; do
+            mkdir -p app/bin/$p
+            cp artifacts/bin-$p/* app/bin/$p/
+          done
+          cp artifacts/bin-android32/* app/bin/android/
+          ls -R app/bin
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Godot
+        id: godot-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Download Godot and export templates
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot
+          cd ~/godot
+          base="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable"
+          curl -sSLo godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip && rm godot.zip
+          mv Godot_v${GODOT_VERSION}-stable_linux.x86_64 godot
+          curl -sSLo templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          unzip -q templates.tpz && rm templates.tpz
+
+      - name: Set up Godot (templates, Android SDK, keystores)
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_USER: ${{ secrets.ANDROID_KEYSTORE_USER }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          tdir=~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          mkdir -p "$tdir" ~/.config/godot
+          cp -r ~/godot/templates/* "$tdir/"
+          keytool -genkeypair -keystore ~/debug.keystore -storepass android -alias androiddebugkey \
+            -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" -noprompt
+          cat > ~/.config/godot/editor_settings-4.7.tres <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/android_sdk_path = "$ANDROID_HOME"
+          export/android/java_sdk_path = "$JAVA_HOME"
+          export/android/debug_keystore = "$HOME/debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
+          EOF
+          sed -i 's/^          //' ~/.config/godot/editor_settings-4.7.tres
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > ~/release.keystore
+            echo "GODOT_ANDROID_KEYSTORE_RELEASE_USER=$KEYSTORE_USER" >> "$GITHUB_ENV"
+            echo "GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD=$KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
+          else
+            echo "::warning::No Android signing secrets: the APK is signed with a throwaway key."
+            keytool -genkeypair -keystore ~/release.keystore -storepass redoxci -alias redox \
+              -keypass redoxci -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=RedoX CI" -noprompt
+            echo "GODOT_ANDROID_KEYSTORE_RELEASE_USER=redox" >> "$GITHUB_ENV"
+            echo "GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD=redoxci" >> "$GITHUB_ENV"
+          fi
+          echo "GODOT_ANDROID_KEYSTORE_RELEASE_PATH=$HOME/release.keystore" >> "$GITHUB_ENV"
+
+      - name: Install the Android Gradle template (TV banner included)
+        run: python3 tools/setup_android_build.py ~/godot/templates/android_source.zip
+
+      - name: Import project
+        run: ~/godot/godot --headless --path app --import || true
+
+      - name: Export
+        run: |
+          mkdir -p build/windows build/linux build/android
+          ~/godot/godot --headless --path app --export-release "Windows Desktop" ../build/windows/RedoXGaming.exe
+          ~/godot/godot --headless --path app --export-release "Linux" ../build/linux/RedoXGaming.x86_64
+          ~/godot/godot --headless --path app --export-release "Android" ../build/android/RedoXGaming.apk
+          ls -la build/*
+
+      - name: Package
+        run: |
+          version=$(grep -oP 'config/version="\K[^"]+' app/project.godot)
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          mkdir -p dist
+          (cd build/windows && zip -q -r ../../dist/RedoXGaming-$version-windows-x64.zip .)
+          (cd build/linux && chmod +x RedoXGaming.x86_64 && tar -czf ../../dist/RedoXGaming-$version-linux-x64.tar.gz .)
+          cp build/android/RedoXGaming.apk dist/RedoXGaming-$version-android.apk
+          (cd dist && sha256sum * > SHA256SUMS.txt)
+          ls -la dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RedoXGaming-${{ env.VERSION }}
+          path: dist/
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1 || \
+            gh release create "$GITHUB_REF_NAME" --title "RedoX Gaming $GITHUB_REF_NAME" --generate-notes
+          gh release upload "$GITHUB_REF_NAME" dist/* --clobber
+    permissions:
+      contents: write

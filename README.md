@@ -16,7 +16,13 @@ Pixel-art interface built for the TV remote and gamepad, powered by the battle-t
 - **Free game store:** pick a legal homebrew game, it downloads and starts by itself
 - **Your own games:** add a folder or a USB stick; box art is found automatically
 - **Emulator cores on demand:** the right core is downloaded the first time you open a system
-- Save states, battery saves, pause menu, pixel-perfect scaling
+- **Resume where you left off**, 4 save-state slots with pictures, battery saves
+- **Rewind** and **fast forward**, CRT / LCD / smooth picture filters
+- **Cheats:** your own codes or one click in the libretro cheat database
+- **RetroAchievements:** earn achievements in classic games (softcore and hardcore)
+- **Recently played, favourites, play time,** search and sort
+- **Settings:** Turkish / English, volume, controller and keyboard remapping, picture size
+- On-screen gamepad for phones and tablets, menu sounds, new-version notice
 - Everything works with a D-pad and two buttons
 
 > RedoX Gaming does **not** include or download commercial games. You play free homebrew games or your own legally obtained game files.
@@ -41,9 +47,9 @@ Grab the latest build from **[Releases](../../releases)**.
 
 | Platform | Status |
 |---|---|
-| Windows 10/11 (x64) | ✅ `RedoXGaming-windows-x64.zip`: unzip, run `RedoXGaming.exe` |
-| Linux (x64) | 🛠️ builds from source; packaged release coming |
-| Android TV / Android phone (arm64) | 🛠️ planned for the next release |
+| Windows 10/11 (x64) | ✅ `RedoXGaming-<version>-windows-x64.zip`: unzip, run `RedoXGaming.exe` |
+| Linux (x64) | ✅ `RedoXGaming-<version>-linux-x64.tar.gz`: unpack, run `RedoXGaming.x86_64` |
+| Android TV / Android phone (arm64 + 32-bit armeabi-v7a) | 🧪 `RedoXGaming-<version>-android.apk`: install the APK (allow "unknown sources"); not yet tested on many devices |
 
 Requirements: OpenGL 3.3 capable GPU (any GPU from the last ~12 years), internet only for the free store, box art and first-time core downloads.
 
@@ -78,14 +84,18 @@ Requirements: OpenGL 3.3 capable GPU (any GPU from the last ~12 years), internet
 | In game: L / R | `Q` / `W` | LB / RB |
 | In game: Start / Select | `Enter` / `Shift` | Start / Back (View) |
 | Switch tabs | `Q` / `E` | LB / RB |
+| Favourite / search / sort | `F` / `/` / `O` | X / Y / Select |
+| Continue last game · settings (home) | `C` · `S` | Y · Start |
+| Rewind (hold) | `R` | LT / L2 |
+| Fast forward (hold) | `Space` | RT / R2 |
 | Pause menu (in game) | `Esc` | Select + Start, or Guide |
-| Quick save / load | `F2` / `F4` | pause menu |
+| Quick save / load (slot 1) | `F2` / `F4` | pause menu |
 
-In-game buttons follow the SNES layout by **position**, so the game's A is always the right button.
+In-game buttons follow the SNES layout by **position**, so the game's A is always the right button. Every key and button can be changed in **Settings → Controls**. More in the wiki: [Using RedoX Gaming](../../wiki/Using-RedoX-Gaming), [RetroAchievements](../../wiki/RetroAchievements).
 
 ## Adding your own games
 
-1. Open a system → **+ KLASÖR EKLE** (add folder) → pick a folder, a USB stick or a network share.
+1. Open a system → **+ ADD FOLDER** → pick a folder, a USB stick or a network share.
 2. Sub-folders are scanned; files stay where they are (nothing is copied).
 3. Box art is downloaded from [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) when the file name matches the No-Intro name (e.g. `Super Mario Bros. (World).nes`).
 
@@ -93,7 +103,7 @@ You can also copy files to the app's ROM folder: `%APPDATA%\Godot\app_userdata\R
 
 ## Free games
 
-The **ÜCRETSİZ OYUNLAR** (free games) tab lists homebrew games from [Retrobrews](https://retrobrews.github.io): new games made for old consoles, shared by their authors. Retrobrews states that every listed game was approved for sharing by its owner; RedoX Gaming shows the developer and the source on every game.
+The **FREE GAMES** tab lists homebrew games from [Retrobrews](https://retrobrews.github.io): new games made for old consoles, shared by their authors. Retrobrews states that every listed game was approved for sharing by its owner; RedoX Gaming shows the developer and the source on every game.
 
 ## Build from source
 
@@ -120,11 +130,14 @@ Full instructions, Linux and Android: **[docs/TECHNICAL.md](docs/TECHNICAL.md#bu
 - [x] Pixel-art TV interface, platform carousel, pause menu
 - [x] Free homebrew store, folder/USB import, box art, cores on demand
 - [x] Windows release
-- [ ] Android TV / phone build (APK), on-screen touch controls for phones
-- [ ] Linux release (AppImage)
-- [ ] Settings screen: controller remapping, shaders (CRT / scanlines), audio latency
-- [ ] Favourites and recently played
-- [ ] Rewind and fast-forward
+- [x] Settings screen: language, controller remapping, picture size, CRT / LCD filters
+- [x] Favourites, recently played, play time, search and sort
+- [x] Rewind, fast forward, 4 save slots, resume where you left off
+- [x] Cheats (own codes + libretro cheat database), RetroAchievements
+- [x] Linux build, Android APK, on-screen touch controls, CI builds on GitHub Actions
+- [ ] Android TV testing on more devices, TV launcher banner
+- [ ] Linux AppImage / Flatpak
+- [ ] Netplay, audio latency setting, hardware-rendered cores (N64, PSP)
 
 ## License
 
