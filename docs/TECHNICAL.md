@@ -209,7 +209,7 @@ Remapping is stored in Settings (`keys`, `pad`) and applied by `RetroInput.load_
 |---|---|---|
 | `Settings` | `services/settings.gd` | preferences in `user://settings.json`; `get_value` / `set_value` (saves and emits `changed(key)`); applies volume and fullscreen |
 | `Stats` | `services/stats.gd` | per game: seconds played, last played, favourite (`user://stats.json`); `recent()`, `favorites()`, formatting |
-| `SpaceBackdrop` | `ui/space_backdrop.gd` | home screen background: 3 parallax star layers, twinkling, shooting stars, and sprites from `assets/space/` (asteroid*, ufo*, ship*) flying above and below the carousel; off with the `menu_motion` setting |
+| `SpaceBackdrop` | `ui/space_backdrop.gd` | home screen background: 3 parallax star layers, twinkling, shooting stars, and short scenes with the sprites from `assets/space/` (asteroid*, ufo*, ship*) in the band above the carousel: a ship chases and shoots a UFO, the UFO wins now and then, a ship shoots an asteroid to pieces, a ship crashes into an asteroid, two asteroids collide. Lasers, plasma, explosions and debris are pixel particles drawn in code. `--space-scene=<name>` plays one scene only (testing). Off with the `menu_motion` setting |
 | `Sfx` | `services/sfx.gd` | square-wave menu sounds generated at start (no sound files); plays on focus change and button press |
 | `Cheats` | `services/cheats.gd` | cheat lists per game, applying them to the core, cheat database lookup |
 | `Achievements` | `services/achievements.gd` | `RAClient` glue: token login, HTTP, unlock banner, pause-menu page |

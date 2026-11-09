@@ -209,7 +209,7 @@ Tuş atamaları Settings'te (`keys`, `pad`) saklanır ve `RetroInput.load_bindin
 |---|---|---|
 | `Settings` | `services/settings.gd` | tercihler `user://settings.json`'da; `get_value` / `set_value` (kaydeder ve `changed(key)` yayar); ses seviyesini ve tam ekranı uygular |
 | `Stats` | `services/stats.gd` | oyun başına oynama süresi, son oynanma, favori (`user://stats.json`); `recent()`, `favorites()`, biçimlendirme |
-| `SpaceBackdrop` | `ui/space_backdrop.gd` | ana ekran arka planı: 3 katman parallax yıldız, göz kırpma, yıldız kayması ve `assets/space/` içindeki görseller (asteroid*, ufo*, ship*) karuselin üstünden ve altından geçer; `menu_motion` ayarıyla kapanır |
+| `SpaceBackdrop` | `ui/space_backdrop.gd` | ana ekran arka planı: 3 katman parallax yıldız, göz kırpma, yıldız kayması ve `assets/space/` görselleriyle (asteroid*, ufo*, ship*) karuselin üstündeki bantta kısa sahneler: gemi UFO'yu kovalayıp vurur, arada bir UFO kazanır, gemi asteroidi parçalar, gemi asteroide çarpar, iki asteroit çarpışır. Lazer, plazma, patlama ve enkaz kodla çizilen piksel parçacıklar. `--space-scene=<ad>` yalnızca bir sahneyi oynatır (test için). `menu_motion` ayarıyla kapanır |
 | `Sfx` | `services/sfx.gd` | açılışta üretilen kare dalga menü sesleri (ses dosyası yok); odak değişince ve düğmeye basınca çalar |
 | `Cheats` | `services/cheats.gd` | oyun başına hile listeleri, çekirdeğe uygulama, hile veritabanında arama |
 | `Achievements` | `services/achievements.gd` | `RAClient` bağlantısı: token ile giriş, HTTP, başarım bildirimi, duraklatma menüsü sayfası |
