@@ -31,10 +31,23 @@ func _url(plat: String, f: String) -> String:
 	return BUILDBOT[plat] % f
 
 
-## Absolute path of an installed core, or "".
+## Files a core needs next to it in the system folder (prboom.wad for Doom).
+func _support(system_id: String) -> Dictionary:
+	return App.SYSTEMS.get(system_id, {}).get("support", {})
+
+
+func _support_missing(system_id: String) -> Array:
+	var out := []
+	for f in _support(system_id):
+		if not FileAccess.file_exists(App.SYSTEM_DIR.path_join(f)):
+			out.append(f)
+	return out
+
+
+## Absolute path of an installed core (with its support files), or "".
 func find(system_id: String) -> String:
 	var f := file_name(system_id)
-	if f.is_empty():
+	if f.is_empty() or not _support_missing(system_id).is_empty():
 		return ""
 	var plat := App.platform_folder()
 	var candidates := [
@@ -56,6 +69,12 @@ func ensure(system_id: String, on_progress := Callable()) -> String:
 	var f := file_name(system_id)
 	if f.is_empty():
 		return ""
+	for s in _support_missing(system_id):
+		if not await Net.download(_support(system_id)[s], App.SYSTEM_DIR.path_join(s), on_progress):
+			return ""
+	found = find(system_id)
+	if not found.is_empty():
+		return found
 	var plat := App.platform_folder()
 	var dir := "%s/%s" % [USER_CORES, plat]
 	var zip_path := "%s/%s.zip" % [dir, f]

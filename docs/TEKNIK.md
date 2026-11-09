@@ -258,6 +258,16 @@ Her oyun `{path, system, title, cover, meta}` biçimindedir; `meta`, varsa `user
 
 `Catalog.list(sistem)`, `gamelist.xml`'i indirir (24 saat önbellekte tutulur, çevrimdışıyken son kopya kullanılır) ve `XMLParser` ile okur. `Catalog.install(oyun)` ROM'u `user://roms/<sistem>/`'e indirir, ekran görüntüsünü kapak olarak kopyalar, bilgi JSON'unu yazar (ad, geliştirici, yıl, oyuncu sayısı, açıklama, kaynak) ve kütüphaneyi yeniden tarar.
 
+### 5.3b Catalog: libretro içerikleri ve Freedoom
+
+`Catalog.LIBRETRO`'daki sistemler (TIC-80, Vectrex, Pokémon Mini, DOOM, Cave Story) için liste, `https://buildbot.libretro.com/assets/cores/<klasör>/` dizin sayfasıdır; RetroArch'ın içerik indiricisinin sunduğu dosyaların aynısı, 24 saat önbellekte tutulur. `Catalog.EXTRA` GitHub sürümünden Freedoom'u ekler. Ekran görüntüleri libretro-thumbnails `Named_Snaps`'ten gelir. Zip indirmeleri `user://roms/<sistem>/<ad>/` içine açılır: yalnızca oyun dosyaları; sabit dosya adlı sistemler hariç (Cave Story tüm veri klasörünü tutar).
+
+Birkaç sistemin paylaştığı uzantılar her sistemde `folder_ext` olarak yazılır ve yalnızca adı o sistemi gösteren bir klasörde sayılır; `App.system_of(path, hint)` klasörün sistemini `hint` olarak alır, en uzun eşleşen klasör ipucu kazanır (`PC Engine CD`, `PC Engine`'i yener). `keep_all` sistemleri zip'in tamamını tutar (oyun veri klasörleri), `game_dir` oyun dosyasını bu adda bir klasöre taşır (Quake: `id1`). `bios` gerekli BIOS gruplarını listeler (her gruptan bir dosya); oynatıcı çekirdekte hata vermek yerine eksik dosyanın adını söyler, `Library` oyun klasörlerinde bulduğu bilinen BIOS dosyalarını `user://system/`'e kopyalar.
+
+`App.SYSTEMS` kayıtları `files` (oyunun kendisi olan tam dosya adları, ör. `doukutsu.exe`), `skip` (oyun olmayan dosya adları, ör. `prboom.wad`) ve `support` (çekirdeğin `user://system/` içinde istediği `{dosya: url}`, `Cores.ensure` çekirdekle birlikte indirir) alanlarını taşıyabilir.
+
+RetroHost ayrıca `SET_FRAME_TIME_CALLBACK`'i yanıtlar (TIC-80 ister; her karede bir karelik emüle zaman bildirilir) ve her durum kaydı arabelleğine 4 KB boş yer bırakır, çünkü VecX bildirdiği boyutun ötesine yazar.
+
 ### 5.4 Covers: kapak resimleri
 
 Oyuncunun kendi oyunları için `Covers`, `https://thumbnails.libretro.com/<Sistem>/Named_Boxarts/` klasörünün listesini haftada bir indirir. Her başlığı sadeleştirir: `(…)`/`[…]` etiketlerini atar, sondaki `, The`'yi başa alır, küçük harfe çevirir, yalnızca harf ve rakamları bırakır. Sonra ROM dosya adıyla eşleştirir. Birden çok bölge eşleşirse tercih ABD > Dünya > Avrupa > Japonya'dır. İndirmeler tek tek yapılır; başarısız olanlar oturum boyunca hatırlanır.

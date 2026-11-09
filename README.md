@@ -12,7 +12,7 @@
 Pixel-art interface built for the TV remote and gamepad, powered by the battle-tested
 [libretro](https://www.libretro.com/) emulator cores and the [Godot 4](https://godotengine.org/) engine.
 
-- 13 classic systems from one app: NES, SNES, Game Boy, Game Boy Color, Game Boy Advance, Mega Drive, Master System, Game Gear, PC Engine, Atari 2600, Neo Geo Pocket, PlayStation and Arcade
+- 43 systems from one app: NES, SNES, Game Boy / Color / Advance, Nintendo DS, Mega Drive, Sega CD, 32X, PlayStation, PC Engine, Atari 2600 / 5200 / 7800 / Lynx, Arcade and many more, plus free game engines (DOOM, Quake, Cave Story) and fantasy consoles (TIC-80, LowRes NX)
 - **Free game store:** pick a legal homebrew game, it downloads and starts by itself
 - **Your own games:** add a folder or a USB stick; box art is found automatically
 - **Emulator cores on demand:** the right core is downloaded the first time you open a system
@@ -77,6 +77,32 @@ Requirements: OpenGL 3.3 capable GPU (any GPU from the last ~12 years), internet
 | Atari 7800 | `.a78` | ProSystem | — |
 | Atari Lynx | `.lnx` | Handy | — |
 | WonderSwan / Color | `.ws .wsc` | Beetle WonderSwan | — |
+| SG-1000 | `.sg` | Genesis Plus GX | — |
+| Vectrex | `.vec` | VecX | ✅ 40 |
+| Pokémon Mini | `.min` | PokeMini | ✅ 1 |
+| Game & Watch | `.mgw` | Game & Watch (gw) | — |
+| Watara Supervision | `.sv` | Potator | — |
+| TIC-80 (fantasy console) | `.tic` | TIC-80 | ✅ 12 |
+| DOOM (engine) | `.wad` (Freedoom, shareware or your own DOOM.WAD) | PrBoom | ✅ 2 |
+| Cave Story | the folder with `Doukutsu.exe` | NXEngine | ✅ 1 |
+| Quake | `id1/pak0.pak` | TyrQuake | ✅ 1 (shareware) |
+| Rick Dangerous | `.zip` in a Rick folder | xrick | ✅ 1 |
+| Dinothawr | `.game` in a Dinothawr folder | Dinothawr | ✅ 2 |
+| Jump 'n Bump | `.dat` in a Jump 'n Bump folder | Jump 'n Bump | ✅ level pack |
+| Super Bros War | `.game` in a Super Bros War folder | Super Bros War | ✅ 1 (Super Cat Wars LITE) |
+| Arduboy | `.hex` in an Arduboy folder | Arduous | ✅ 1 |
+| CHIP-8 / SCHIP / XO-CHIP | `.ch8 .sc8 .xo8` | JAXE | ✅ 95 |
+| Uzebox | `.uze` | Uzem | ✅ 2 |
+| LowRes NX | `.nx` | LowRes NX | ✅ 100 |
+| MicroW8 | `.uw8` | MicroW8 | ✅ 2 |
+| Sega CD / Mega CD | `.cue .chd .iso` in a Sega CD folder (BIOS required) | Genesis Plus GX | — |
+| PC Engine CD | `.cue .chd .ccd` in a PC Engine CD folder (BIOS required) | Beetle PCE Fast | — |
+| ColecoVision | `.col .cv` (`.rom .bin` in a Coleco folder; BIOS required) | Gearcoleco | ✅ 101 |
+| Intellivision | `.int` (`.bin .rom` in an Intellivision folder; BIOS required) | FreeIntv | ✅ 1 |
+| Atari 5200 | `.a52` (`.bin` in a 5200 folder) | a5200 | — |
+| Odyssey² / Videopac | `.bin` in an Odyssey2 folder (BIOS required) | O2EM | — |
+
+**BIOS files:** systems marked "BIOS required" show which file is missing when you start a game. Put the BIOS next to your games and add that folder (or copy it to the `system` folder): RedoX Gaming finds known BIOS files in your game folders and copies them where the cores look. It never downloads BIOS files.
 
 ## Controls
 
@@ -111,6 +137,8 @@ You can also copy files to the app's ROM folder: `%APPDATA%\Godot\app_userdata\R
 ## Free games
 
 The **FREE GAMES** tab lists homebrew games from [Retrobrews](https://retrobrews.github.io): new games made for old consoles, shared by their authors. Retrobrews states that every listed game was approved for sharing by its owner; RedoX Gaming shows the developer and the source on every game.
+
+For TIC-80, Vectrex, Pokémon Mini, DOOM, Cave Story, Quake, Rick Dangerous, Dinothawr, Jump 'n Bump, Super Bros War, Arduboy, CHIP-8, Uzebox, LowRes NX, MicroW8 and Intellivision the tab shows the freely distributable games that libretro's own content downloader offers (TIC-80 carts, the Vectrex library its rights holder released for free, the DOOM shareware episode, Cave Story), plus [Freedoom](https://freedoom.github.io). ColecoVision games come from Retrobrews.
 
 ## Build from source
 
@@ -147,6 +175,30 @@ Full instructions, Linux and Android: **[docs/TECHNICAL.md](docs/TECHNICAL.md#bu
 - [ ] Netplay, audio latency setting, hardware-rendered cores (N64, PSP, Dreamcast)
 - [ ] Nintendo DS touch screen with a TV remote or gamepad (on-screen cursor)
 
+## Legal
+
+**What RedoX Gaming is.** RedoX Gaming is a free, non-commercial player for [libretro](https://www.libretro.com/) emulator cores. It contains no game, no BIOS and no code from any console maker. Emulators themselves are legal software; what matters is where the games come from.
+
+**Games and BIOS files.**
+- RedoX Gaming never offers, links to or downloads commercial games or BIOS files.
+- Use only game files and BIOS files you are entitled to, for example copies you made from cartridges, discs or consoles you own, as your local law allows. You are responsible for the files you add.
+- Systems that need a BIOS (PlayStation, Sega CD, PC Engine CD, ColecoVision, Intellivision, Odyssey²) show which file is missing; RedoX Gaming only copies BIOS files that you already have.
+
+**Free games in the store.** RedoX Gaming does not host any game. The FREE GAMES tab downloads each game straight from its original source and shows that source on the game page:
+- [Retrobrews](https://retrobrews.github.io): homebrew games whose authors approved sharing.
+- [libretro's content downloader](https://buildbot.libretro.com/assets/cores/): the freely distributable games RetroArch itself offers, such as the DOOM and Quake shareware episodes, Cave Story (freeware), the Vectrex library its rights holder released for free, TIC-80, Arduboy, CHIP-8, Uzebox, LowRes NX and MicroW8 homebrew.
+- [Freedoom](https://freedoom.github.io): a free, BSD-licensed DOOM game.
+
+If you hold the rights to a game listed in the store and want it removed, please [open an issue](../../issues); it will be taken out of the list.
+
+**Emulator cores.** Cores are downloaded from the [libretro buildbot](https://buildbot.libretro.com/) the first time you open a system; they are not bundled. Each core keeps its own license (see below). Some cores (Snes9x, Genesis Plus GX, PicoDrive, FBNeo) allow non-commercial use only, so RedoX Gaming is and stays free.
+
+**Online services.** RedoX Gaming has no account, no ads and no analytics. It only connects to: the libretro buildbot (cores and free games), libretro-thumbnails (box art), Retrobrews and GitHub (free game list, cheats, Freedoom, new-version check) and, if you sign in, [RetroAchievements](https://retroachievements.org), whose own terms apply. Your RetroAchievements token is stored only on your device.
+
+**Trademarks.** Console and game names are used only to say what the app is compatible with. All trademarks belong to their owners. RedoX Gaming is not affiliated with or endorsed by Nintendo, Sega, Sony, NEC, Atari, SNK, Bandai, Mattel, Coleco, Philips/Magnavox, id Software or any other company. The system icons are original drawings, not official logos.
+
+**No warranty.** RedoX Gaming is provided "as is", without any warranty, as described in the GPL v3.
+
 ## License
 
 RedoX Gaming is licensed under the **GNU General Public License v3.0**; see [LICENSE](LICENSE).
@@ -157,9 +209,10 @@ Third-party parts keep their own licenses:
 |---|---|
 | [godot-cpp](https://github.com/godotengine/godot-cpp) | MIT |
 | [libretro.h](https://github.com/libretro/libretro-common) | MIT |
-| libretro cores (downloaded at runtime, not bundled) | their own: GPL, or non-commercial for Snes9x / Genesis Plus GX / FBNeo |
+| libretro cores (downloaded at runtime, not bundled) | their own: mostly GPL, non-commercial for Snes9x / Genesis Plus GX / PicoDrive / FBNeo |
 | [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P), [VT323](https://fonts.google.com/specimen/VT323) | SIL Open Font License |
 | Free game list and screenshots | [Retrobrews](https://retrobrews.github.io) and each game's author |
+| Other free games (TIC-80, Vectrex, DOOM, Quake, Cave Story and more) | [libretro content downloader](https://buildbot.libretro.com/assets/cores/) and each game's author, [Freedoom](https://freedoom.github.io) (BSD) |
 | Box art | [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) |
 
-Console names are used only to describe compatibility. All trademarks belong to their owners; RedoX Gaming is not affiliated with Nintendo, Sega, Sony, NEC, Atari or SNK.
+See [Legal](#legal) for trademarks, game sources and online services.

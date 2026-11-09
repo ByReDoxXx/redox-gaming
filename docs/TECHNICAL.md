@@ -403,6 +403,16 @@ For a stable Android signature, add the repository secrets `ANDROID_KEYSTORE_BAS
 4. Add a 512 px illustration in `art/gemini/<id>.jpg`, then run `cutout_icons.py` and `make_svgs.py`.
 5. Optional: add a Retrobrews repository to `Catalog.REPOS`.
 
+### 5.3b Catalog: libretro content and Freedoom
+
+For systems in `Catalog.LIBRETRO` (TIC-80, Vectrex, Pokémon Mini, DOOM, Cave Story) the list is the directory page of `https://buildbot.libretro.com/assets/cores/<folder>/`, the same files RetroArch's content downloader offers, cached for 24 h. `Catalog.EXTRA` adds Freedoom from its GitHub release. Screenshots come from libretro-thumbnails `Named_Snaps`. Zip downloads are unpacked into `user://roms/<system>/<name>/`: only the game files, except for systems with fixed file names (Cave Story keeps its whole data folder).
+
+Extensions shared by several systems are listed per system as `folder_ext` and count only inside a folder whose name points to that system; `App.system_of(path, hint)` takes the folder's system as `hint`, and the longest matching folder hint wins (`PC Engine CD` beats `PC Engine`). `keep_all` systems keep the whole zip (game data folders), `game_dir` moves the game file into a folder of that name (Quake: `id1`). `bios` lists required BIOS groups (one file of each); the player names the missing file instead of failing in the core, and `Library` copies known BIOS files it finds in game folders to `user://system/`.
+
+`App.SYSTEMS` entries may carry `files` (exact file names that are the game, e.g. `doukutsu.exe`), `skip` (file names that are not games, e.g. `prboom.wad`) and `support` (`{file: url}` the core needs in `user://system/`, downloaded together with the core by `Cores.ensure`).
+
+RetroHost also answers `SET_FRAME_TIME_CALLBACK` (TIC-80 needs it; it is told one frame of emulated time per frame) and gives every save-state buffer 4 KB of spare room, because VecX writes past the size it reports.
+
 **Add a free game source:** implement `list(system)` and `install(entry)` like `Catalog`, returning the same entry dictionary. Only add sources whose games may be redistributed.
 
 ## 10. Known limitations

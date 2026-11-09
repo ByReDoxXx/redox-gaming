@@ -30,6 +30,22 @@ const THUMB_SYSTEMS := {
 	"a78": ["Atari - 7800"],
 	"lynx": ["Atari - Lynx"],
 	"vb": ["Nintendo - Virtual Boy"],
+	"sg1000": ["Sega - SG-1000"],
+	"vectrex": ["GCE - Vectrex"],
+	"pokemini": ["Nintendo - Pokemon Mini"],
+	"gw": ["Handheld Electronic Game"],
+	"sv": ["Watara - Supervision"],
+	"tic80": ["TIC-80"],
+	"doom": ["DOOM"],
+	"cave": ["Cave Story"],
+	"segacd": ["Sega - Mega-CD - Sega CD"],
+	"pcecd": ["NEC - PC Engine CD - TurboGrafx-CD"],
+	"a5200": ["Atari - 5200"],
+	"coleco": ["Coleco - ColecoVision"],
+	"intv": ["Mattel - Intellivision"],
+	"o2": ["Magnavox - Odyssey2"],
+	"arduboy": ["Arduboy Inc - Arduboy"],
+	"lowres": ["LowRes NX"],
 }
 ## Preferred regions when several box arts match the same title.
 const REGION_ORDER := ["(USA", "(World", "(Europe", "(Japan"]

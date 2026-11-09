@@ -183,6 +183,8 @@ private:
 	int16_t pointer_x = 0;
 	int16_t pointer_y = 0;
 	bool pointer_pressed = false;
+	// RETRO_ENVIRONMENT_SET_FRAME_TIME_CALLBACK (TIC-80): told the time of each frame
+	retro_frame_time_callback frame_time_cb{};
 
 	double time_accumulator = 0.0;
 	double speed = 1.0;

@@ -398,7 +398,9 @@ func _fill_store(focus_grid: bool) -> void:
 			"badge_ok": Catalog.is_installed(e),
 		})
 		card.pressed.connect(_open_detail.bind(e, card))
-		if not e.image.is_empty():
+		if not e.image_url.is_empty():
+			Covers.request_image(e.image_url, cache)
+		elif not e.image.is_empty():
 			Covers.request_image(Catalog.RAW % [e.repo, e.image.uri_encode()], cache)
 	_filter_cards()
 	_link_focus(focus_grid)
@@ -561,7 +563,7 @@ func _open_detail(e: Dictionary, card: GameCard) -> void:
 		desc.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		desc.custom_minimum_size = Vector2(720, 240)
 		info.add_child(desc)
-		var src := App.body_label(App.t("SOURCE_NOTE", [Catalog.SOURCE_NAME]), 28, App.C_MUTED)
+		var src := App.body_label(App.t("SOURCE_NOTE" if e.source == Catalog.SOURCE_NAME else "SOURCE_NOTE_FREE", [e.source]), 28, App.C_MUTED)
 		src.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		src.custom_minimum_size.x = 720
 		info.add_child(src)

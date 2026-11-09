@@ -166,6 +166,7 @@ bool RetroHost::load_core(const String &p_path) {
 	pixel_format = RETRO_PIXEL_FORMAT_0RGB1555;
 	variables.clear();
 	has_mmap = false;
+	frame_time_cb = {};
 	mmap_descriptors.clear();
 
 	core.set_environment(cb_environment);
@@ -336,6 +337,14 @@ void RetroHost::step_frame() {
 		return;
 	}
 	audio_buffer_frames = 0;
+	if (frame_time_cb.callback) {
+		// emulated time: one frame at the core's own rate, whatever the real speed
+		retro_usec_t usec = frame_time_cb.reference;
+		if (usec <= 0 && av_info.timing.fps > 0.0) {
+			usec = static_cast<retro_usec_t>(1000000.0 / av_info.timing.fps);
+		}
+		frame_time_cb.callback(usec);
+	}
 	core.run();
 	if (ra) {
 		ra->do_frame();
@@ -421,6 +430,10 @@ void rle_xor_apply(const std::vector<uint8_t> &delta, std::vector<uint8_t> &stat
 
 } // namespace
 
+// Some cores write (VecX) or read past the size they report for a save state.
+// Every state buffer handed to a core gets this much spare room.
+static constexpr size_t STATE_SLACK = 4096;
+
 void RetroHost::set_rewind_enabled(bool p_enabled) {
 	rewind_enabled = p_enabled;
 	if (!p_enabled) {
@@ -440,10 +453,11 @@ void RetroHost::rewind_push() {
 	if (size == 0) {
 		return;
 	}
-	std::vector<uint8_t> next(size);
+	std::vector<uint8_t> next(size + STATE_SLACK);
 	if (!core.serialize(next.data(), size)) {
 		return;
 	}
+	next.resize(size);
 	if (rewind_current.size() != size) {
 		rewind_clear();
 		rewind_current.swap(next);
@@ -470,7 +484,11 @@ bool RetroHost::rewind_pop() {
 		rewind_deltas.pop_back();
 	}
 	// at the oldest state we keep showing it
-	return core.unserialize(rewind_current.data(), rewind_current.size());
+	const size_t size = rewind_current.size();
+	rewind_current.resize(size + STATE_SLACK);
+	const bool ok = core.unserialize(rewind_current.data(), size);
+	rewind_current.resize(size);
+	return ok;
 }
 
 // ------------------------------------------------------------------ cheats
@@ -581,10 +599,18 @@ void RetroHost::on_video(const void *p_data, unsigned p_width, unsigned p_height
 	uint8_t *dst = frame_rgba.ptrw();
 	const uint8_t *src = static_cast<const uint8_t *>(p_data);
 
+	// Some cores (VecX without a GL context) ask for XRGB8888, are told yes,
+	// then fall back to a 16-bit RGB565 software frame. Trust the pitch: a row
+	// too short for 4 bytes per pixel cannot be XRGB8888.
+	retro_pixel_format fmt = pixel_format;
+	if (fmt == RETRO_PIXEL_FORMAT_XRGB8888 && p_pitch < size_t(w) * 4) {
+		fmt = RETRO_PIXEL_FORMAT_RGB565;
+	}
+
 	for (int y = 0; y < h; y++) {
 		const uint8_t *row = src + size_t(y) * p_pitch;
 		uint8_t *out = dst + size_t(y) * w * 4;
-		switch (pixel_format) {
+		switch (fmt) {
 			case RETRO_PIXEL_FORMAT_XRGB8888: {
 				const uint32_t *px = reinterpret_cast<const uint32_t *>(row);
 				for (int x = 0; x < w; x++) {
@@ -749,6 +775,10 @@ bool RetroHost::on_environment(unsigned p_cmd, void *p_data) {
 			}
 			return true;
 		}
+		case RETRO_ENVIRONMENT_SET_FRAME_TIME_CALLBACK: {
+			frame_time_cb = *static_cast<const retro_frame_time_callback *>(p_data);
+			return true;
+		}
 		case RETRO_ENVIRONMENT_GET_INPUT_DEVICE_CAPABILITIES: {
 			// joypad, and a touch screen / mouse pointer (Nintendo DS)
 			*static_cast<uint64_t *>(p_data) = (1ull << RETRO_DEVICE_JOYPAD) | (1ull << RETRO_DEVICE_POINTER);
@@ -836,10 +866,12 @@ PackedByteArray RetroHost::save_state() {
 	if (size == 0) {
 		return out;
 	}
-	out.resize(int64_t(size));
+	out.resize(int64_t(size + STATE_SLACK));
 	if (!core.serialize(out.ptrw(), size)) {
 		out.clear();
+		return out;
 	}
+	out.resize(int64_t(size));
 	return out;
 }
 
@@ -847,7 +879,9 @@ bool RetroHost::load_state(const PackedByteArray &p_data) {
 	if (!game_loaded || p_data.is_empty()) {
 		return false;
 	}
-	const bool ok = core.unserialize(p_data.ptr(), size_t(p_data.size()));
+	PackedByteArray padded = p_data;
+	padded.resize(p_data.size() + int64_t(STATE_SLACK));
+	const bool ok = core.unserialize(padded.ptr(), size_t(p_data.size()));
 	if (ok && ra) {
 		ra->on_state_loaded();
 	}

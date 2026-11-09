@@ -21,8 +21,17 @@ const FACE := {
 	"ps1": [[RetroInput.A, "O"], [RetroInput.B, "X"], [RetroInput.X, "^"], [RetroInput.Y, "[]"]],
 	"pce": [[RetroInput.A, "I"], [RetroInput.B, "II"]],
 	"arcade": [[RetroInput.A, "2"], [RetroInput.B, "1"], [RetroInput.X, "4"], [RetroInput.Y, "3"]],
+	"sg1000": [[RetroInput.A, "2"], [RetroInput.B, "1"]],
+	"vectrex": [[RetroInput.A, "2"], [RetroInput.B, "1"], [RetroInput.X, "4"], [RetroInput.Y, "3"]],
+	"tic80": [[RetroInput.A, "A"], [RetroInput.B, "B"], [RetroInput.X, "X"], [RetroInput.Y, "Y"]],
+	"doom": [[RetroInput.A, "A"], [RetroInput.B, "B"], [RetroInput.X, "X"], [RetroInput.Y, "Y"]],
+	"cave": [[RetroInput.A, "A"], [RetroInput.B, "B"], [RetroInput.X, "X"], [RetroInput.Y, "Y"]],
+	"quake": [[RetroInput.A, "A"], [RetroInput.B, "B"], [RetroInput.X, "X"], [RetroInput.Y, "Y"]],
+	"segacd": [[RetroInput.A, "C"], [RetroInput.B, "B"], [RetroInput.Y, "A"]],
+	"pcecd": [[RetroInput.A, "I"], [RetroInput.B, "II"]],
+	"uzebox": [[RetroInput.A, "A"], [RetroInput.B, "B"], [RetroInput.X, "X"], [RetroInput.Y, "Y"]],
 }
-const SHOULDERS := ["snes", "gba", "ps1", "arcade", "vb", "nds"]
+const SHOULDERS := ["snes", "gba", "ps1", "arcade", "vb", "nds", "pokemini", "doom", "cave", "quake", "uzebox"]
 
 var system := ""
 var _buttons: Array = []     # {rect: Rect2, id: int, label: String, kind: "btn"|"dpad"|"pause"}

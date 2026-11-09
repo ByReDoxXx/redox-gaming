@@ -73,6 +73,11 @@ func _ready() -> void:
 	if _system.is_empty():
 		_system = Library.find_game(_game).get("system", App.system_of(_game))
 	_triggers_hotkeys = _system != "ps1"
+	var missing := App.missing_bios(_system)
+	if not missing.is_empty():
+		_fail(App.t("BIOS_MISSING", [App.system_name(_system), ", ".join(missing),
+			ProjectSettings.globalize_path(App.SYSTEM_DIR)]))
+		return
 	var core := Cores.find(_system)
 	if core.is_empty():
 		_fail(App.t("NO_CORE", [App.system_name(_system)]))

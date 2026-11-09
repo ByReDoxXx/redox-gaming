@@ -24,9 +24,23 @@ HOLES = {"ps1": [(0.5, 0.5)], "settings": [(0.5, 0.5)]}   # extra see-through ar
 # icons whose fake checkerboard has black squares: dark pixels that are not blue-tinted are background,
 # the navy outline (blue-tinted) is still a wall
 BLACK_CHECKER = {"arcade"}
+# icons on a plain white background: only near-white pixels are background, so
+# coloured parts behind a gap in the outline stay
+WHITE_BG = {"nds", "32x", "vb", "a78", "lynx", "ws",
+            "chip8", "coleco", "dinothawr", "doom", "gw", "intv", "jnb", "lowres", "microw8", "o2", "pcecd", "pokemini", "quake", "rick", "segacd", "sg1000", "sv", "tic80", "uzebox", "vectrex", "a5200", "arduboy", "cave", "sbw"}
+HOLES["vb"] = [(0.309, 0.822)]   # inside the tripod leg
+HOLES["o2"] = [(0.39, 0.695), (0.443, 0.815), (0.417, 0.785)]   # inside the joystick cable
+HOLES["a5200"] = [(0.6, 0.748), (0.495, 0.8), (0.843, 0.705), (0.877, 0.63)]   # cable loops
+HOLES["sbw"] = [(0.595, 0.367)]   # under the grey cat
+HOLES["tic80"] = [(0.718, 0.695)]   # inside the keyboard cable
+HOLES["uzebox"] = [(0.545, 0.83), (0.347, 0.807), (0.422, 0.797), (0.28, 0.772)]   # cable loops
 
 
-def background_mask(img, extra_seeds, black_checker=False):
+def is_white(c):
+    return min(c) >= 222 and max(c) - min(c) <= 24
+
+
+def background_mask(img, extra_seeds, black_checker=False, white_bg=False):
     w, h = img.size
     px = img.load()
     seen = bytearray(w * h)
@@ -35,7 +49,11 @@ def background_mask(img, extra_seeds, black_checker=False):
     def push(x, y):
         i = y * w + x
         c = px[x, y]
-        if not seen[i] and (max(c) > DARK or (black_checker and c[2] <= c[0] + 6)):
+        if white_bg:
+            ok = is_white(c)
+        else:
+            ok = max(c) > DARK or (black_checker and c[2] <= c[0] + 6)
+        if not seen[i] and ok:
             seen[i] = 1
             q.append((x, y))
 
@@ -69,7 +87,7 @@ def process(path):
     sid = path.stem
     src = Image.open(path).convert("RGB")
     small = src.resize((WORK, WORK), Image.BILINEAR)
-    mask = background_mask(small, HOLES.get(sid, []), sid in BLACK_CHECKER)
+    mask = background_mask(small, HOLES.get(sid, []), sid in BLACK_CHECKER, sid in WHITE_BG)
     # drop single stray pixels, then scale the mask back up
     mask = mask.filter(ImageFilter.MedianFilter(3))
     mask = mask.resize(src.size, Image.BILINEAR).point(lambda v: 255 if v > 127 else 0)
@@ -82,7 +100,8 @@ def process(path):
     side = int(max(rgba.size) * 1.06)
     canvas = Image.new("RGBA", (side, side), (0, 0, 0, 0))
     canvas.alpha_composite(rgba, ((side - rgba.width) // 2, (side - rgba.height) // 2))
-    canvas = canvas.resize((OUT_SIZE, OUT_SIZE), Image.LANCZOS)
+    # premultiply so the background colour does not bleed into the edges
+    canvas = canvas.convert("RGBa").resize((OUT_SIZE, OUT_SIZE), Image.LANCZOS).convert("RGBA")
     canvas.save(OUT / f"{sid}.png")
     return sid
 

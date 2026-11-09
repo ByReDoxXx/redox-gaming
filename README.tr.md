@@ -12,7 +12,7 @@
 TV kumandası ve gamepad için tasarlanmış pixel art arayüz; arkasında yıllardır test edilen
 [libretro](https://www.libretro.com/) emülatör çekirdekleri ve [Godot 4](https://godotengine.org/) motoru var.
 
-- Tek uygulamada 13 klasik sistem: NES, SNES, Game Boy, Game Boy Color, Game Boy Advance, Mega Drive, Master System, Game Gear, PC Engine, Atari 2600, Neo Geo Pocket, PlayStation ve Arcade
+- Tek uygulamada 43 sistem: NES, SNES, Game Boy / Color / Advance, Nintendo DS, Mega Drive, Sega CD, 32X, PlayStation, PC Engine, Atari 2600 / 5200 / 7800 / Lynx, Arcade ve daha fazlası; ayrıca ücretsiz oyun motorları (DOOM, Quake, Cave Story) ve fantezi konsollar (TIC-80, LowRes NX)
 - **Ücretsiz oyun mağazası:** yasal bir homebrew oyun seçin, kendiliğinden iner ve başlar
 - **Kendi oyunlarınız:** bir klasör ya da USB bellek ekleyin, kapak resimleri otomatik bulunur
 - **İhtiyaç anında çekirdek:** bir sistemi ilk açtığınızda doğru emülatör çekirdeği bir kez indirilir
@@ -77,6 +77,32 @@ Gereksinimler: OpenGL 3.3 destekleyen ekran kartı (son ~12 yılın her kartı).
 | Atari 7800 | `.a78` | ProSystem | — |
 | Atari Lynx | `.lnx` | Handy | — |
 | WonderSwan / Color | `.ws .wsc` | Beetle WonderSwan | — |
+| SG-1000 | `.sg` | Genesis Plus GX | — |
+| Vectrex | `.vec` | VecX | ✅ 40 |
+| Pokémon Mini | `.min` | PokeMini | ✅ 1 |
+| Game & Watch | `.mgw` | Game & Watch (gw) | — |
+| Watara Supervision | `.sv` | Potator | — |
+| TIC-80 (fantezi konsol) | `.tic` | TIC-80 | ✅ 12 |
+| DOOM (motor) | `.wad` (Freedoom, shareware ya da kendi DOOM.WAD'ınız) | PrBoom | ✅ 2 |
+| Cave Story | `Doukutsu.exe`'nin bulunduğu klasör | NXEngine | ✅ 1 |
+| Quake | `id1/pak0.pak` | TyrQuake | ✅ 1 (shareware) |
+| Rick Dangerous | Rick klasöründe `.zip` | xrick | ✅ 1 |
+| Dinothawr | Dinothawr klasöründe `.game` | Dinothawr | ✅ 2 |
+| Jump 'n Bump | Jump 'n Bump klasöründe `.dat` | Jump 'n Bump | ✅ bölüm paketi |
+| Super Bros War | Super Bros War klasöründe `.game` | Super Bros War | ✅ 1 (Super Cat Wars LITE) |
+| Arduboy | Arduboy klasöründe `.hex` | Arduous | ✅ 1 |
+| CHIP-8 / SCHIP / XO-CHIP | `.ch8 .sc8 .xo8` | JAXE | ✅ 95 |
+| Uzebox | `.uze` | Uzem | ✅ 2 |
+| LowRes NX | `.nx` | LowRes NX | ✅ 100 |
+| MicroW8 | `.uw8` | MicroW8 | ✅ 2 |
+| Sega CD / Mega CD | Sega CD klasöründe `.cue .chd .iso` (BIOS gerekli) | Genesis Plus GX | — |
+| PC Engine CD | PC Engine CD klasöründe `.cue .chd .ccd` (BIOS gerekli) | Beetle PCE Fast | — |
+| ColecoVision | `.col .cv` (Coleco klasöründe `.rom .bin`; BIOS gerekli) | Gearcoleco | ✅ 101 |
+| Intellivision | `.int` (Intellivision klasöründe `.bin .rom`; BIOS gerekli) | FreeIntv | ✅ 1 |
+| Atari 5200 | `.a52` (5200 klasöründe `.bin`) | a5200 | — |
+| Odyssey² / Videopac | Odyssey2 klasöründe `.bin` (BIOS gerekli) | O2EM | — |
+
+**BIOS dosyaları:** "BIOS gerekli" yazan sistemlerde oyunu açınca hangi dosyanın eksik olduğu gösterilir. BIOS'u oyunlarınızın yanına koyup o klasörü ekleyin (ya da `system` klasörüne kopyalayın): RedoX Gaming oyun klasörlerinizdeki bilinen BIOS dosyalarını bulur ve çekirdeklerin baktığı yere kopyalar. BIOS dosyalarını asla indirmez.
 
 ## Kontroller
 
@@ -111,6 +137,8 @@ Dosyaları uygulamanın ROM klasörüne de kopyalayabilirsiniz: Windows'ta `%APP
 ## Ücretsiz oyunlar
 
 **ÜCRETSİZ OYUNLAR** sekmesi [Retrobrews](https://retrobrews.github.io)'teki homebrew oyunları listeler: eski konsollar için yapılmış ve geliştiricilerinin paylaştığı yeni oyunlar. Retrobrews listedeki her oyunun paylaşımına sahibinin izin verdiğini belirtir; RedoX Gaming her oyunda geliştiriciyi ve kaynağı gösterir.
+
+TIC-80, Vectrex, Pokémon Mini, DOOM, Cave Story, Quake, Rick Dangerous, Dinothawr, Jump 'n Bump, Super Bros War, Arduboy, CHIP-8, Uzebox, LowRes NX, MicroW8 ve Intellivision için sekme, libretro'nun kendi içerik indiricisindeki ücretsiz dağıtılabilen oyunları (TIC-80 kartuşları, hak sahibinin ücretsiz yaptığı Vectrex oyunları, DOOM'un shareware bölümü, Cave Story) ve [Freedoom](https://freedoom.github.io)'u gösterir. ColecoVision oyunları Retrobrews'tan gelir.
 
 ## Kaynaktan derleme
 
@@ -147,6 +175,30 @@ Ayrıntılı anlatım, Linux ve Android: **[docs/TEKNIK.md](docs/TEKNIK.md#derle
 - [ ] Netplay, ses gecikmesi ayarı, donanım çizimli çekirdekler (N64, PSP, Dreamcast)
 - [ ] Nintendo DS dokunmatik ekranı için TV kumandası / gamepad ile ekran imleci
 
+## Yasal bilgiler
+
+**RedoX Gaming nedir?** RedoX Gaming, [libretro](https://www.libretro.com/) emülatör çekirdekleri için ücretsiz ve ticari olmayan bir oynatıcıdır. İçinde hiçbir oyun, BIOS ya da konsol üreticisine ait kod yoktur. Emülatörler yasal yazılımlardır; önemli olan oyunların nereden geldiğidir.
+
+**Oyunlar ve BIOS dosyaları.**
+- RedoX Gaming hiçbir zaman ticari oyun ya da BIOS dosyası sunmaz, bağlantı vermez ve indirmez.
+- Yalnızca kullanma hakkınız olan oyun ve BIOS dosyalarını kullanın; örneğin yasalarınızın izin verdiği ölçüde, sahip olduğunuz kartuş, disk ya da konsoldan kendinizin aldığı kopyalar. Eklediğiniz dosyaların sorumluluğu size aittir.
+- BIOS gereken sistemler (PlayStation, Sega CD, PC Engine CD, ColecoVision, Intellivision, Odyssey²) hangi dosyanın eksik olduğunu gösterir; RedoX Gaming yalnızca zaten sizde olan BIOS dosyalarını kopyalar.
+
+**Mağazadaki ücretsiz oyunlar.** RedoX Gaming hiçbir oyunu kendi sunucusunda barındırmaz. ÜCRETSİZ OYUNLAR sekmesi her oyunu doğrudan asıl kaynağından indirir ve kaynağı oyun sayfasında gösterir:
+- [Retrobrews](https://retrobrews.github.io): geliştiricisinin paylaşımına izin verdiği homebrew oyunlar.
+- [libretro içerik indiricisi](https://buildbot.libretro.com/assets/cores/): RetroArch'ın kendisinin sunduğu ücretsiz dağıtılabilen oyunlar; DOOM ve Quake'in shareware bölümleri, Cave Story (freeware), hak sahibinin ücretsiz yaptığı Vectrex kütüphanesi, TIC-80, Arduboy, CHIP-8, Uzebox, LowRes NX ve MicroW8 homebrew oyunları gibi.
+- [Freedoom](https://freedoom.github.io): BSD lisanslı, ücretsiz bir DOOM oyunu.
+
+Mağazadaki bir oyunun hak sahibiyseniz ve kaldırılmasını istiyorsanız lütfen [bir issue açın](../../issues); oyun listeden çıkarılır.
+
+**Emülatör çekirdekleri.** Çekirdekler bir sistemi ilk açtığınızda [libretro buildbot](https://buildbot.libretro.com/)'tan indirilir; uygulamayla birlikte dağıtılmaz. Her çekirdeğin kendi lisansı vardır (aşağıya bakın). Bazı çekirdekler (Snes9x, Genesis Plus GX, PicoDrive, FBNeo) yalnızca ticari olmayan kullanıma izin verir; bu yüzden RedoX Gaming ücretsizdir ve ücretsiz kalacaktır.
+
+**Çevrim içi servisler.** RedoX Gaming'de hesap, reklam ya da kullanım takibi yoktur. Yalnızca şunlara bağlanır: libretro buildbot (çekirdekler ve ücretsiz oyunlar), libretro-thumbnails (kapak görselleri), Retrobrews ve GitHub (ücretsiz oyun listesi, hileler, Freedoom, yeni sürüm kontrolü) ve giriş yaparsanız kendi kullanım koşulları geçerli olan [RetroAchievements](https://retroachievements.org). RetroAchievements anahtarınız yalnızca cihazınızda saklanır.
+
+**Ticari markalar.** Konsol ve oyun adları yalnızca uyumluluğu belirtmek için kullanılır. Tüm ticari markalar sahiplerine aittir. RedoX Gaming; Nintendo, Sega, Sony, NEC, Atari, SNK, Bandai, Mattel, Coleco, Philips/Magnavox, id Software ya da başka bir şirketle bağlantılı değildir ve onlar tarafından desteklenmez. Sistem simgeleri resmi logolar değil, özgün çizimlerdir.
+
+**Garanti yoktur.** RedoX Gaming, GPL v3'te yazdığı gibi "olduğu gibi" ve hiçbir garanti olmadan sunulur.
+
 ## Lisans
 
 RedoX Gaming **GNU General Public License v3.0** ile lisanslanmıştır; bkz. [LICENSE](LICENSE).
@@ -157,9 +209,10 @@ RedoX Gaming **GNU General Public License v3.0** ile lisanslanmıştır; bkz. [L
 |---|---|
 | [godot-cpp](https://github.com/godotengine/godot-cpp) | MIT |
 | [libretro.h](https://github.com/libretro/libretro-common) | MIT |
-| libretro çekirdekleri (çalışırken iner, pakete dahil değil) | kendi lisansları: GPL, ya da Snes9x / Genesis Plus GX / FBNeo için ticari olmayan kullanım |
+| libretro çekirdekleri (çalışırken iner, pakete dahil değil) | kendi lisansları: çoğu GPL, Snes9x / Genesis Plus GX / PicoDrive / FBNeo için ticari olmayan kullanım |
 | [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P), [VT323](https://fonts.google.com/specimen/VT323) | SIL Open Font License |
 | Ücretsiz oyun listesi ve ekran görüntüleri | [Retrobrews](https://retrobrews.github.io) ve her oyunun geliştiricisi |
+| Diğer ücretsiz oyunlar (TIC-80, Vectrex, DOOM, Quake, Cave Story ve diğerleri) | [libretro içerik indiricisi](https://buildbot.libretro.com/assets/cores/) ve her oyunun geliştiricisi, [Freedoom](https://freedoom.github.io) (BSD) |
 | Kapak resimleri | [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) |
 
-Konsol adları yalnızca uyumluluğu belirtmek için kullanılır. Tüm markalar sahiplerine aittir; RedoX Gaming'in Nintendo, Sega, Sony, NEC, Atari veya SNK ile bir bağlantısı yoktur.
+Ticari markalar, oyun kaynakları ve çevrim içi servisler için [Yasal bilgiler](#yasal-bilgiler) bölümüne bakın.

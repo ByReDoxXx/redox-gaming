@@ -18,10 +18,6 @@ const COVER_DIR := "user://covers"
 const MAX_DEPTH := 6
 const MAX_FILES := 20000
 
-## Extensions that only count inside a folder that names the system,
-## because they are shared between systems.
-const FOLDER_ONLY_EXT := {"md": ["bin"], "a26": ["bin"], "gba": ["bin"], "arcade": ["zip"]}
-
 ## Folder-name hints (lowercase) -> system
 const FOLDER_HINTS := {
 	"nes": ["nes", "famicom", "fc"],
@@ -43,6 +39,30 @@ const FOLDER_HINTS := {
 	"a78": ["a78", "7800", "atari7800", "atari 7800"],
 	"lynx": ["lynx", "atari lynx", "atarilynx"],
 	"vb": ["vb", "virtualboy", "virtual boy"],
+	"pokemini": ["pokemini", "pokemon mini", "pokémon mini", "pm"],
+	"gw": ["gw", "game and watch", "game & watch", "gameandwatch"],
+	"sg1000": ["sg1000", "sg 1000", "sg-1000"],
+	"vectrex": ["vectrex", "vec"],
+	"sv": ["sv", "supervision", "watara"],
+	"tic80": ["tic80", "tic 80", "tic-80"],
+	"doom": ["doom", "freedoom", "wads"],
+	"cave": ["cave story", "cavestory", "doukutsu"],
+	"segacd": ["segacd", "sega cd", "megacd", "mega cd"],
+	"pcecd": ["pcecd", "pce cd", "pc engine cd", "pcengine cd", "pcenginecd", "turbografx cd", "tgcd", "tg16 cd"],
+	"a5200": ["a5200", "5200", "atari5200", "atari 5200"],
+	"coleco": ["coleco", "colecovision"],
+	"intv": ["intv", "intellivision"],
+	"o2": ["o2", "odyssey2", "odyssey 2", "odyssey", "videopac"],
+	"quake": ["quake", "id1"],
+	"rick": ["rick", "xrick", "rick dangerous"],
+	"dinothawr": ["dinothawr"],
+	"jnb": ["jnb", "jumpnbump", "jump n bump", "jump 'n bump"],
+	"sbw": ["sbw", "superbroswar", "super bros war", "super cat wars", "smw"],
+	"arduboy": ["arduboy", "arduous"],
+	"chip8": ["chip8", "chip 8"],
+	"uzebox": ["uzebox"],
+	"lowres": ["lowres", "lowresnx", "lowres nx"],
+	"microw8": ["microw8", "uw8"],
 }
 
 var games: Array[Dictionary] = []
@@ -174,7 +194,7 @@ func _scan_flat(dir: String, found: Dictionary) -> void:
 	if d == null:
 		return
 	for f in d.get_files():
-		var id: String = _ext.get(f.get_extension().to_lower(), "")
+		var id := App.system_of(f)
 		if not id.is_empty():
 			found[dir.path_join(f)] = id
 
@@ -191,9 +211,8 @@ func _scan_dir(dir: String, hint: String, found: Dictionary, depth: int) -> void
 		hint = folder_hint
 	for f in d.get_files():
 		var ext := f.get_extension().to_lower()
-		var id: String = _ext.get(ext, "")
-		if not hint.is_empty() and ext in FOLDER_ONLY_EXT.get(hint, []):
-			id = hint
+		var id := App.system_of(f, hint)
+		_import_bios(dir, f)
 		if not id.is_empty():
 			found[dir.path_join(f)] = id
 	for sub in d.get_directories():
@@ -201,13 +220,29 @@ func _scan_dir(dir: String, hint: String, found: Dictionary, depth: int) -> void
 			_scan_dir(dir.path_join(sub), hint, found, depth + 1)
 
 
+## The longest matching hint wins ("pc engine cd" beats "pc engine").
 func _hint_from_name(folder: String) -> String:
 	var name := folder.to_lower().replace("_", " ").replace("-", " ").strip_edges()
+	var best := ""
+	var best_len := 0
 	for id in FOLDER_HINTS:
 		for h in FOLDER_HINTS[id]:
-			if name == h or (h.length() > 3 and name.contains(h)):
-				return id
-	return ""
+			if (name == h or (h.length() > 3 and name.contains(h))) and h.length() > best_len:
+				best = id
+				best_len = h.length()
+	return best
+
+
+## A BIOS file found next to the games (USB stick, Downloads) is copied to
+## the system folder, where the cores look for it.
+func _import_bios(dir: String, file: String) -> void:
+	var canon := App.bios_name(file)
+	if canon.is_empty() or dir.simplify_path() == App.SYSTEM_DIR.simplify_path():
+		return
+	var dest := App.SYSTEM_DIR.path_join(canon)
+	if not FileAccess.file_exists(dest):
+		DirAccess.make_dir_recursive_absolute(App.SYSTEM_DIR)
+		DirAccess.copy_absolute(dir.path_join(file), dest)
 
 
 func _entry(path: String, id: String) -> Dictionary:

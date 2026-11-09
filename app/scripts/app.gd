@@ -22,27 +22,75 @@ const BORDER := 4
 const LIFT := 8.0
 const MOTION := 0.1
 
-## id -> name, accent, core file (without platform suffix), extensions
+## id -> name, accent, core file (without platform suffix), extensions.
+## Optional:
+##   "files"      exact file names that are the game (no extension match)
+##   "folder_ext" extensions shared with other systems: they count only inside
+##                a folder named after the system (Library.FOLDER_HINTS)
+##   "skip"       file names that are not games
+##   "keep_all"   free downloads keep every file of the zip (game data folders)
+##   "game_dir"   the game file must sit in a folder of this name (Quake: id1)
+##   "support"    {file: url} the core needs in the system folder (downloaded
+##                together with the core)
+##   "bios"       required BIOS files: a list of groups, one file of each group
+##                must be in the system folder
+##   "bios_opt"   optional BIOS files (copied there when found in a game folder)
 const SYSTEMS := {
-	"nes": {"name": "NES", "accent": "e0301e", "core": "fceumm_libretro", "ext": ["nes", "fds", "unf"]},
+	"nes": {"name": "NES", "accent": "e0301e", "core": "fceumm_libretro", "ext": ["nes", "fds", "unf"], "bios_opt": ["disksys.rom"]},
 	"snes": {"name": "SNES", "accent": "8b5cf6", "core": "snes9x_libretro", "ext": ["sfc", "smc"]},
 	"gb": {"name": "GAME BOY", "accent": "84a90f", "core": "gambatte_libretro", "ext": ["gb"]},
 	"gbc": {"name": "GB COLOR", "accent": "14b8a6", "core": "gambatte_libretro", "ext": ["gbc"]},
-	"gba": {"name": "GB ADVANCE", "accent": "6366f1", "core": "mgba_libretro", "ext": ["gba"]},
+	"gba": {"name": "GB ADVANCE", "accent": "6366f1", "core": "mgba_libretro", "ext": ["gba"], "folder_ext": ["bin"],
+		"bios_opt": ["gba_bios.bin"]},
 	"nds": {"name": "NINTENDO DS", "accent": "38bdf8", "core": "melondsds_libretro", "ext": ["nds"], "touch": true},
 	"vb": {"name": "VIRTUAL BOY", "accent": "dc2626", "core": "mednafen_vb_libretro", "ext": ["vb", "vboy"]},
-	"md": {"name": "MEGA DRIVE", "accent": "2563eb", "core": "genesis_plus_gx_libretro", "ext": ["md", "gen", "smd"]},
+	"pokemini": {"name": "POKEMON MINI", "accent": "facc15", "core": "pokemini_libretro", "ext": ["min"]},
+	"gw": {"name": "GAME & WATCH", "accent": "fb923c", "core": "gw_libretro", "ext": ["mgw"]},
+	"md": {"name": "MEGA DRIVE", "accent": "2563eb", "core": "genesis_plus_gx_libretro", "ext": ["md", "gen", "smd"], "folder_ext": ["bin"]},
 	"32x": {"name": "SEGA 32X", "accent": "eab308", "core": "picodrive_libretro", "ext": ["32x"]},
 	"sms": {"name": "MASTER SYSTEM", "accent": "f97316", "core": "genesis_plus_gx_libretro", "ext": ["sms"]},
 	"gg": {"name": "GAME GEAR", "accent": "0ea5e9", "core": "genesis_plus_gx_libretro", "ext": ["gg"]},
+	"segacd": {"name": "SEGA CD", "accent": "3b82f6", "core": "genesis_plus_gx_libretro", "ext": [],
+		"folder_ext": ["cue", "chd", "iso"], "bios": [["bios_CD_U.bin", "bios_CD_E.bin", "bios_CD_J.bin"]]},
+	"sg1000": {"name": "SG-1000", "accent": "fda4af", "core": "genesis_plus_gx_libretro", "ext": ["sg"]},
 	"pce": {"name": "PC ENGINE", "accent": "f59e0b", "core": "mednafen_pce_fast_libretro", "ext": ["pce"]},
-	"a26": {"name": "ATARI 2600", "accent": "a16207", "core": "stella_libretro", "ext": ["a26"]},
+	"pcecd": {"name": "PC ENGINE CD", "accent": "fbbf24", "core": "mednafen_pce_fast_libretro", "ext": [],
+		"folder_ext": ["cue", "chd", "ccd"], "bios": [["syscard3.pce"]]},
+	"a26": {"name": "ATARI 2600", "accent": "a16207", "core": "stella_libretro", "ext": ["a26"], "folder_ext": ["bin"]},
+	"a5200": {"name": "ATARI 5200", "accent": "9a3412", "core": "a5200_libretro", "ext": ["a52"],
+		"folder_ext": ["bin"], "bios_opt": ["5200.rom"]},
 	"a78": {"name": "ATARI 7800", "accent": "c2410c", "core": "prosystem_libretro", "ext": ["a78"]},
-	"lynx": {"name": "ATARI LYNX", "accent": "f43f5e", "core": "handy_libretro", "ext": ["lnx"]},
+	"lynx": {"name": "ATARI LYNX", "accent": "f43f5e", "core": "handy_libretro", "ext": ["lnx"], "bios_opt": ["lynxboot.img"]},
+	"coleco": {"name": "COLECOVISION", "accent": "f87171", "core": "gearcoleco_libretro", "ext": ["col", "cv"],
+		"folder_ext": ["rom", "bin"], "bios": [["colecovision.rom"]]},
+	"intv": {"name": "INTELLIVISION", "accent": "ca8a04", "core": "freeintv_libretro", "ext": ["int"],
+		"folder_ext": ["bin", "rom"], "bios": [["exec.bin"], ["grom.bin"]]},
+	"o2": {"name": "ODYSSEY 2", "accent": "38bdf8", "core": "o2em_libretro", "ext": [],
+		"folder_ext": ["bin"], "bios": [["o2rom.bin", "c52.bin", "g7400.bin", "jopac.bin"]]},
+	"vectrex": {"name": "VECTREX", "accent": "84cc16", "core": "vecx_libretro", "ext": ["vec"]},
 	"ngp": {"name": "NEO GEO POCKET", "accent": "d946ef", "core": "mednafen_ngp_libretro", "ext": ["ngp", "ngc"]},
 	"ws": {"name": "WONDERSWAN", "accent": "22c55e", "core": "mednafen_wswan_libretro", "ext": ["ws", "wsc"]},
-	"ps1": {"name": "PLAYSTATION", "accent": "94a3b8", "core": "pcsx_rearmed_libretro", "ext": ["cue", "chd", "pbp"]},
-	"arcade": {"name": "ARCADE", "accent": "ec4899", "core": "fbneo_libretro", "ext": ["zip"]},
+	"sv": {"name": "SUPERVISION", "accent": "0d9488", "core": "potator_libretro", "ext": ["sv"]},
+	"ps1": {"name": "PLAYSTATION", "accent": "94a3b8", "core": "pcsx_rearmed_libretro", "ext": ["cue", "chd", "pbp"],
+		"bios_opt": ["scph5501.bin", "scph5500.bin", "scph5502.bin", "scph1001.bin", "scph7001.bin", "scph101.bin", "psxonpsp660.bin"]},
+	"arcade": {"name": "ARCADE", "accent": "ec4899", "core": "fbneo_libretro", "ext": ["zip"], "folder_ext": ["zip"]},
+	"tic80": {"name": "TIC-80", "accent": "a855f7", "core": "tic80_libretro", "ext": ["tic"]},
+	# Doom engine: any IWAD (Freedoom, the shareware DOOM1.WAD, your own DOOM.WAD)
+	"doom": {"name": "DOOM", "accent": "b91c1c", "core": "prboom_libretro", "ext": ["wad"],
+		"skip": ["prboom.wad"], "support": {"prboom.wad": "https://buildbot.libretro.com/assets/cores/DOOM/prboom.wad"}},
+	# Cave Story: the game is the folder that holds Doukutsu.exe
+	"cave": {"name": "CAVE STORY", "accent": "dc6d2c", "core": "nxengine_libretro", "ext": [], "files": ["doukutsu.exe"]},
+	"quake": {"name": "QUAKE", "accent": "a16207", "core": "tyrquake_libretro", "ext": [], "files": ["pak0.pak"],
+		"game_dir": "id1"},
+	"rick": {"name": "RICK DANGEROUS", "accent": "eab308", "core": "xrick_libretro", "ext": [], "folder_ext": ["zip"]},
+	"dinothawr": {"name": "DINOTHAWR", "accent": "67e8f9", "core": "dinothawr_libretro", "ext": [], "folder_ext": ["game"], "keep_all": true},
+	"jnb": {"name": "JUMP 'N BUMP", "accent": "f9a8d4", "core": "jumpnbump_libretro", "ext": [], "folder_ext": ["dat"]},
+	"sbw": {"name": "SUPER BROS WAR", "accent": "ef4444", "core": "superbroswar_libretro", "ext": [], "folder_ext": ["game"], "keep_all": true},
+	"arduboy": {"name": "ARDUBOY", "accent": "e5e7eb", "core": "arduous_libretro", "ext": [], "folder_ext": ["hex"]},
+	"chip8": {"name": "CHIP-8", "accent": "22d3ee", "core": "jaxe_libretro", "ext": ["ch8", "sc8", "xo8"]},
+	"uzebox": {"name": "UZEBOX", "accent": "4ade80", "core": "uzem_libretro", "ext": ["uze"]},
+	"lowres": {"name": "LOWRES NX", "accent": "c084fc", "core": "lowresnx_libretro", "ext": ["nx"]},
+	"microw8": {"name": "MICROW8", "accent": "fb7185", "core": "uw8_libretro", "ext": ["uw8"]},
 }
 
 const SAVE_DIR := "user://saves"
@@ -73,6 +121,8 @@ const ACTIONS := [
 ]
 
 var _ext_to_system := {}
+var _file_to_system := {}
+var _bios_names := {}
 var _icons := {}
 var _last_back := -1000
 
@@ -94,6 +144,8 @@ func _ready() -> void:
 	for id in SYSTEMS:
 		for e in SYSTEMS[id]["ext"]:
 			_ext_to_system[e] = id
+		for f in SYSTEMS[id].get("files", []):
+			_file_to_system[f] = id
 	theme = _build_theme()
 	RetroInput.load_bindings()
 	for a in ACTIONS:
@@ -117,8 +169,18 @@ func _ready() -> void:
 
 # ---------------------------------------------------------------- systems
 
-func system_of(path: String) -> String:
-	return _ext_to_system.get(path.get_extension().to_lower(), "")
+## hint: the system named by the folder the file is in ("" if none).
+func system_of(path: String, hint := "") -> String:
+	var file := path.get_file().to_lower()
+	if _file_to_system.has(file):
+		return _file_to_system[file]
+	var ext := path.get_extension().to_lower()
+	if not hint.is_empty() and ext in SYSTEMS.get(hint, {}).get("folder_ext", []):
+		return hint
+	var id: String = _ext_to_system.get(ext, "")
+	if not id.is_empty() and file in SYSTEMS[id].get("skip", []):
+		return ""
+	return id
 
 
 ## Interface text in the chosen language (scripts/strings.gd).
@@ -128,6 +190,32 @@ func t(key: String, args: Array = []) -> String:
 		return key
 	var s: String = row[Strings.lang_index(Settings.get_value("lang"))]
 	return s % args if not args.is_empty() else s
+
+
+## Required BIOS files that are missing, one entry per group ("a / b").
+func missing_bios(id: String) -> PackedStringArray:
+	var out := PackedStringArray()
+	for group in SYSTEMS.get(id, {}).get("bios", []):
+		var found := false
+		for f in group:
+			if FileAccess.file_exists(SYSTEM_DIR.path_join(f)):
+				found = true
+				break
+		if not found:
+			out.append(" / ".join(group))
+	return out
+
+
+## Canonical name if the file is a BIOS some core uses ("" otherwise).
+func bios_name(file: String) -> String:
+	if _bios_names.is_empty():
+		for id in SYSTEMS:
+			for group in SYSTEMS[id].get("bios", []):
+				for f in group:
+					_bios_names[f.to_lower()] = f
+			for f in SYSTEMS[id].get("bios_opt", []):
+				_bios_names[f.to_lower()] = f
+	return _bios_names.get(file.to_lower(), "")
 
 
 func is_virtual(id: String) -> bool:
@@ -204,6 +292,12 @@ func platform_folder() -> String:
 
 ## "Super_Mario (USA) [!].nes" -> "SUPER MARIO"
 func pretty_title(path: String) -> String:
+	# a game that is a fixed file name (Doukutsu.exe, pak0.pak) is named after
+	# its folder; skip engine folders like "id1"
+	if _file_to_system.has(path.get_file().to_lower()):
+		path = path.get_base_dir()
+		while path.get_file().length() <= 3 and path.get_base_dir() != path:
+			path = path.get_base_dir()
 	var t := path.get_file().get_basename().replace("_", " ")
 	var re := RegEx.create_from_string("\\s*[\\(\\[][^\\)\\]]*[\\)\\]]")
 	t = re.sub(t, "", true).strip_edges()
